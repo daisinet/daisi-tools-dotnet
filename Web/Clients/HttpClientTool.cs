@@ -57,7 +57,7 @@ namespace Daisi.Tools.Web.Clients
             if(pSummarize is not null)
                 bool.TryParse(pSummarize.Values.FirstOrDefault(), out summarize);
 
-            var executionMessage = string.Format("HTTP {0}: {1} {2}", method, url?.Left(30), summarize ? " (Summarize)" : "");
+            var executionMessage = string.Format("HTTP {0}: {1} {2}", method.ToUpper(), url?.Left(30), summarize ? " (Summarize)" : "");
 
             var task = RunHttp(toolContext, method, url, mediaType, outgoingContent, summarize, cancellationToken);
 
@@ -89,6 +89,7 @@ namespace Daisi.Tools.Web.Clients
                     string responseBody = await httpResponse.Content.ReadAsStringAsync();
 
                     result.Output = responseBody;
+                    result.OutputMessage = $"This is the HTML from {url} to use in your responses";
                     result.Success = true;
                     result.OutputFormat = Protos.V1.InferenceOutputFormats.Html;
                 }

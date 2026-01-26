@@ -18,7 +18,7 @@ namespace Daisi.Tools.Math
 
         public string Name => "Daisi Math";
 
-        public string Description => "Evaluates basic math expressions and returns a single result from the expression";
+        public string Description => "Use this tool to evaluate basic math expressions and returns a numeric result from the expression provided.";
 
         public ToolParameter[] Parameters => new ToolParameter[]{
             new ToolParameter(){ Name = P_EXPRESSION, Description = "This is the math expression that is to be evaluated for a single value", IsRequired = true },

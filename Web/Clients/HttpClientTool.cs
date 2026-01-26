@@ -21,10 +21,10 @@ namespace Daisi.Tools.Web.Clients
 
         public string Name => "Daisi Web Client";
 
-        public string Description => "Sends an HTTP request to the provided URL in real time. Returns a JSON object with \"headers\" and \"content\" properties in a JSON Encoded format.";
+        public string Description => "Use this tool to send an HTTP request to a URL. Returns HTML.";
 
         public ToolParameter[] Parameters => new[]{
-            new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request.", IsRequired = true },
+            new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. Example - https://daisi.ai", IsRequired = true },
             new ToolParameter() { Name = P_SUMMARIZE, Description = "Options: \"True\" or \"False\". If True, the return content will be a summary on the page's main content. If false, the response will be the raw text returned from the URL. Default is False.", IsRequired = false },
             new ToolParameter() { Name = P_METHOD, Description = "Options: \"GET\",\"POST\",\"PUT\",\"PATCH\". The HTTP method to use for the request. Default is GET.", IsRequired = false },
             new ToolParameter() { Name = P_CONTENT, Description = "The content to POST, PUT, or PATCH. Not needed if method is \"GET\".", IsRequired = false },
@@ -88,9 +88,9 @@ namespace Daisi.Tools.Web.Clients
 
                     string responseBody = await httpResponse.Content.ReadAsStringAsync();
 
-                    result.Output = $"{{\n  \"headers\" : \"{JsonEncodedText.Encode(httpResponse.Headers.ToString())}\",\n  \"content\" : \"{JsonEncodedText.Encode(responseBody)}\"\n}}";
+                    result.Output = responseBody;
                     result.Success = true;
-                    result.OutputFormat = Protos.V1.InferenceOutputFormats.Json;
+                    result.OutputFormat = Protos.V1.InferenceOutputFormats.Html;
                 }
                 else
                 {

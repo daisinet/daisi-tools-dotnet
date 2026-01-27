@@ -10,23 +10,23 @@ using System.Text;
 
 namespace Daisi.Tools.Math
 {
-    public class BasicMathTool : IDaisiTool
+    public class BasicMathTool : DaisiToolBase
     {
         const string P_EXPRESSION = "expression";
         const string P_CULTURE = "culture";
         const string P_MATHCONTEXT = "math-context";
 
-        public string Name => "Daisi Math";
+        public override string Name => "Daisi Math";
 
-        public string Description => "Use this tool to evaluate basic math expressions and returns a numeric result from the expression provided.";
+        public override string Description => "Use this tool to evaluate basic math expressions and returns a numeric result from the expression provided.";
 
-        public ToolParameter[] Parameters => new ToolParameter[]{
+        public override ToolParameter[] Parameters => new ToolParameter[]{
             new ToolParameter(){ Name = P_EXPRESSION, Description = "This is the math expression that is to be evaluated for a single value", IsRequired = true },
             new ToolParameter(){ Name = P_CULTURE, Description = "This is culture to use when evaluating the expression. Default is \"en-US\".", IsRequired = false },
             new ToolParameter(){ Name = P_MATHCONTEXT, Description = "Optional Values: \"basic\"-general numeric math without functions; \"scientific\"-basic math plus supports for all trigonomic functions; \"programming\"-basic math, plus supports programming notation such as floor division (\"//\"), exponentiation (\"**\"), and modulo (\"%\") operations; \"dotnet\"-dotnet math syntax and allows for all dotnet 10 math functions and types. Default is \"basic\".", IsRequired = false }
-        }; 
+        };
 
-        public ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameter[] parameters)
+        public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameter[] parameters)
         {
             string executionMessage = $"Evaluating Expression Using Basic Math Tool";
             var task = Task.Run(() =>
@@ -77,5 +77,6 @@ namespace Daisi.Tools.Math
             });
             return new ToolExecutionContext() { ExecutionMessage = executionMessage, ExecutionTask = task };
         }
+
     }
 }

@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace Daisi.Tools.Web.Clients
 {
-    public class HttpClientTool : IDaisiTool
+    public class HttpClientTool : DaisiToolBase
     {
         const string P_URL = "url";
         const string P_SUMMARIZE = "summarize";
@@ -19,11 +19,11 @@ namespace Daisi.Tools.Web.Clients
         const string P_CONTENT = "content";
         const string P_MEDIATYPE = "media-type";
 
-        public string Name => "Daisi Web Client";
+        public override string Name => "Daisi Web Client";
 
-        public string Description => "Use this tool to send an HTTP request to a URL. Returns HTML.";
+        public override string Description => "Use this tool to send an HTTP request to a URL. Returns HTML.";
 
-        public ToolParameter[] Parameters => new[]{
+        public override ToolParameter[] Parameters => new[]{
             new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. Example - https://daisi.ai", IsRequired = true },
             new ToolParameter() { Name = P_SUMMARIZE, Description = "Options: \"True\" or \"False\". If True, the return content will be a summary on the page's main content. If false, the response will be the raw text returned from the URL. Default is False.", IsRequired = false },
             new ToolParameter() { Name = P_METHOD, Description = "Options: \"GET\",\"POST\",\"PUT\",\"PATCH\". The HTTP method to use for the request. Default is GET.", IsRequired = false },
@@ -31,7 +31,7 @@ namespace Daisi.Tools.Web.Clients
             new ToolParameter() { Name = P_MEDIATYPE, Description = "The media type for the Content. Default is \"application/json\".", IsRequired = false }
         };
 
-        public ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameter[] parameters)
+        public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameter[] parameters)
         {
             var pMethod = parameters.GetParameter(P_METHOD, false);
             var method = pMethod?.Values.FirstOrDefault() ?? "get";
@@ -62,6 +62,18 @@ namespace Daisi.Tools.Web.Clients
             var task = RunHttp(toolContext, method, url, mediaType, outgoingContent, summarize, cancellationToken);
 
             return new ToolExecutionContext() { ExecutionMessage = executionMessage, ExecutionTask = task };
+        }
+        
+
+        public override string? ValidateGeneratedParameterValues(ToolParameter par)
+        {
+            var firstVal = par.Values.FirstOrDefault();
+            if (par.Name == P_URL && (string.IsNullOrWhiteSpace(firstVal) || !IsUrl(firstVal)))
+            {
+                return $"The parameter \"{P_URL}\" is not formatted as a fully qualified url. Example: https://google.com";
+            }
+
+            return base.ValidateGeneratedParameterValues(par);
         }
 
         async Task<ToolResult> RunHttp(IToolContext toolContext, string method, string? url, string? mediaType, string? outgoingContent, bool summarize, CancellationToken cancellationToken)

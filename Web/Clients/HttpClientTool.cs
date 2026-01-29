@@ -31,7 +31,7 @@ namespace Daisi.Tools.Web.Clients
             new ToolParameter() { Name = P_MEDIATYPE, Description = "The media type for the Content. Default is \"application/json\".", IsRequired = false }
         };
 
-        public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameter[] parameters)
+        public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameterBase[] parameters)
         {
             var pMethod = parameters.GetParameter(P_METHOD, false);
             var method = pMethod?.Values.FirstOrDefault() ?? "get";
@@ -65,7 +65,7 @@ namespace Daisi.Tools.Web.Clients
         }
         
 
-        public override string? ValidateGeneratedParameterValues(ToolParameter par)
+        public override string? ValidateGeneratedParameterValues(ToolParameterBase par)
         {
             var firstVal = par.Values.FirstOrDefault();
             if (par.Name == P_URL && (string.IsNullOrWhiteSpace(firstVal) || !IsUrl(firstVal)))

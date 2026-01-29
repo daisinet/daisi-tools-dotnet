@@ -26,7 +26,7 @@ namespace Daisi.Tools.Math
             new ToolParameter(){ Name = P_MATHCONTEXT, Description = "Optional Values: \"basic\"-general numeric math without functions; \"scientific\"-basic math plus supports for all trigonomic functions; \"programming\"-basic math, plus supports programming notation such as floor division (\"//\"), exponentiation (\"**\"), and modulo (\"%\") operations; \"dotnet\"-dotnet math syntax and allows for all dotnet 10 math functions and types. Default is \"basic\".", IsRequired = false }
         };
 
-        public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameter[] parameters)
+        public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameterBase[] parameters)
         {
             string executionMessage = $"Evaluating Expression Using Basic Math Tool";
             var task = Task.Run(() =>

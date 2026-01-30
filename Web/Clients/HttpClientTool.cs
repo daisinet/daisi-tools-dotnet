@@ -14,21 +14,19 @@ namespace Daisi.Tools.Web.Clients
     public class HttpClientTool : DaisiToolBase
     {
         const string P_URL = "url";
-        const string P_SUMMARIZE = "summarize";
         const string P_METHOD = "method";
         const string P_CONTENT = "content";
         const string P_MEDIATYPE = "media-type";
 
         public override string Name => "Daisi Web Client";
 
-        public override string Description => "Use this tool to send an HTTP request to a URL. Returns HTML.";
+        public override string Description => "Use this tool to send an HTTP request to a URL. Returns exact contents from the website at the URL provided.";
 
         public override ToolParameter[] Parameters => new[]{
-            new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. Example - https://daisi.ai", IsRequired = true },
-            new ToolParameter() { Name = P_SUMMARIZE, Description = "Options: \"True\" or \"False\". If True, the return content will be a summary on the page's main content. If false, the response will be the raw text returned from the URL. Default is False.", IsRequired = false },
-            new ToolParameter() { Name = P_METHOD, Description = "Options: \"GET\",\"POST\",\"PUT\",\"PATCH\". The HTTP method to use for the request. Default is GET.", IsRequired = false },
-            new ToolParameter() { Name = P_CONTENT, Description = "The content to POST, PUT, or PATCH. Not needed if method is \"GET\".", IsRequired = false },
-            new ToolParameter() { Name = P_MEDIATYPE, Description = "The media type for the Content. Default is \"application/json\".", IsRequired = false }
+            new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. Example - \"https://daisi.ai\"", IsRequired = true },
+            new ToolParameter() { Name = P_METHOD, Description = "The HTTP method to use for the request. Options: \"GET\",\"POST\",\"PUT\",\"PATCH\". Default is GET.", IsRequired = false },
+            new ToolParameter() { Name = P_CONTENT, Description = "The content to POST, PUT, or PATCH. Omit if METHOD  is \"GET\".", IsRequired = false },
+            new ToolParameter() { Name = P_MEDIATYPE, Description = "The media type for the Content sent to the URL. Default is \"application/json\". Omit if METHOD is \"GET\".", IsRequired = false }
         };
 
         public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameterBase[] parameters)
@@ -51,15 +49,9 @@ namespace Daisi.Tools.Web.Clients
                 mediaType = pMediaType?.Values.FirstOrDefault() ?? "application/json";
             }
 
-            var pSummarize = parameters.GetParameter(P_SUMMARIZE, false);
-            var summarize = false;
-            
-            if(pSummarize is not null)
-                bool.TryParse(pSummarize.Values.FirstOrDefault(), out summarize);
+            var executionMessage = string.Format("HTTP {0}: {1}", method.ToUpper(), url?.Left(30));
 
-            var executionMessage = string.Format("HTTP {0}: {1} {2}", method.ToUpper(), url?.Left(30), summarize ? " (Summarize)" : "");
-
-            var task = RunHttp(toolContext, method, url, mediaType, outgoingContent, summarize, cancellationToken);
+            var task = RunHttp(toolContext, method, url, mediaType, outgoingContent, false, cancellationToken);
 
             return new ToolExecutionContext() { ExecutionMessage = executionMessage, ExecutionTask = task };
         }

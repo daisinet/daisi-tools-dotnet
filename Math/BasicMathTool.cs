@@ -15,10 +15,11 @@ namespace Daisi.Tools.Math
         const string P_EXPRESSION = "expression";
         const string P_CULTURE = "culture";
         const string P_MATHCONTEXT = "math-context";
+        public override string Id => "daisi-math-basic";
 
         public override string Name => "Daisi Math";
 
-        public override string Description => "Use this tool to evaluate basic math expressions and returns a numeric result from the expression provided.";
+        public override string UseInstructions => "Use this tool to evaluate basic math expressions and returns a numeric result from the expression provided.";
 
         public override ToolParameter[] Parameters => new ToolParameter[]{
             new ToolParameter(){ Name = P_EXPRESSION, Description = "This is the math expression that is to be evaluated for a single value", IsRequired = true },

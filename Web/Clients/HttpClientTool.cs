@@ -17,10 +17,11 @@ namespace Daisi.Tools.Web.Clients
         const string P_METHOD = "method";
         const string P_CONTENT = "content";
         const string P_MEDIATYPE = "media-type";
+        public override string Id => "daisi-web-clients-http";
 
-        public override string Name => "Daisi Web Client";
+        public override string Name => "Daisi Http Client";
 
-        public override string Description => "Use this tool to send an HTTP request to a URL. Returns exact contents from the website at the URL provided.";
+        public override string UseInstructions => "Use this tool to send an HTTP request to a URL. Returns exact response from the web at the URL provided. This will usually be HTML or JSON.";
 
         public override ToolParameter[] Parameters => new[]{
             new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. Example - \"https://daisi.ai\"", IsRequired = true },
@@ -95,7 +96,18 @@ namespace Daisi.Tools.Web.Clients
                     result.Output = responseBody;
                     result.OutputMessage = $"This is the HTML from {url} to use in your responses";
                     result.Success = true;
-                    result.OutputFormat = Protos.V1.InferenceOutputFormats.Html;
+
+                    var responseMediaType = httpResponse.Content.Headers.ContentType?.MediaType;
+
+                    if(responseMediaType?.Contains("html") ?? false)
+                        result.OutputFormat = Protos.V1.InferenceOutputFormats.Html;
+                    else if (responseMediaType?.Contains("json") ?? false)
+                        result.OutputFormat = Protos.V1.InferenceOutputFormats.Json;
+                    else if (responseMediaType?.Contains("markdown") ?? false)
+                        result.OutputFormat = Protos.V1.InferenceOutputFormats.Markdown;
+                    else
+                        result.OutputFormat = Protos.V1.InferenceOutputFormats.PlainText;
+
                 }
                 else
                 {

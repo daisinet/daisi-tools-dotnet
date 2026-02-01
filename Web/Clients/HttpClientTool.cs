@@ -99,8 +99,14 @@ namespace Daisi.Tools.Web.Clients
 
                     var responseMediaType = httpResponse.Content.Headers.ContentType?.MediaType;
 
-                    if(responseMediaType?.Contains("html") ?? false)
+                    if (responseMediaType?.Contains("html") ?? false)
+                    {
                         result.OutputFormat = Protos.V1.InferenceOutputFormats.Html;
+                        if(result.Output.Contains("<body") && result.Output.Contains("</body>"))
+                        {
+                            result.Output = result.Output.Substring(result.Output.IndexOf("<body"));
+                        }
+                    }
                     else if (responseMediaType?.Contains("json") ?? false)
                         result.OutputFormat = Protos.V1.InferenceOutputFormats.Json;
                     else if (responseMediaType?.Contains("markdown") ?? false)

@@ -15,7 +15,7 @@ namespace Daisi.Tools.Web.Html
         public override string UseInstructions => 
             "Do NOT use this tool to get HTML from the web. " +
             "To get HTML from the web use the daisi-web-clients-http first, " +
-            "then use this tool with the HTML provided. Use this tool to " +
+            "then use this tool with the HTML output from that tool. Use this tool to " +
             "produce a summary of HTML code that is already available. ";
 
         public override ToolParameter[] Parameters => [
@@ -24,7 +24,8 @@ namespace Daisi.Tools.Web.Html
                 Description = "Do NOT provide a URL for a website. This is ONLY " +
                 "the properly formatted HTML code that needs to be summarized for " +
                 "human readability.", 
-                IsRequired = true }
+                IsRequired = true 
+            }
         ];
 
         public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellation, params ToolParameterBase[] parameters)

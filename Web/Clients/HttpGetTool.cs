@@ -11,48 +11,45 @@ using System.Threading;
 
 namespace Daisi.Tools.Web.Clients
 {
-    public class HttpClientTool : DaisiToolBase
+    public class HttpGetTool : DaisiToolBase
     {
         const string P_URL = "url";
-        const string P_METHOD = "method";
-        const string P_CONTENT = "content";
-        const string P_MEDIATYPE = "media-type";
-        public override string Id => "daisi-web-clients-http";
-
-        public override string Name => "Daisi Http Client";
-
-        public override string UseInstructions => "Use this tool to send an HTTP request to a URL. Returns exact response from the web at the URL provided. This will usually be HTML or JSON.";
+       // const string P_METHOD = "method";
+       // const string P_CONTENT = "content";
+       // const string P_MEDIATYPE = "media-type";
+        public override string Id => "daisi-web-clients-http-get";
+        public override string Name => "Daisi Http Get";
+        public override string UseInstructions => "Use this tool to send a HTTP GET request to a URL. Returns exact response from the web at the URL provided. This will usually be HTML or JSON.";
 
         public override ToolParameter[] Parameters => new[]{
-            new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. Example - \"https://daisi.ai\"", IsRequired = true },
-            new ToolParameter() { Name = P_METHOD, Description = "The HTTP method to use for the request. Options: \"GET\",\"POST\",\"PUT\",\"PATCH\". Default is GET.", IsRequired = false },
-            new ToolParameter() { Name = P_CONTENT, Description = "The content to POST, PUT, or PATCH. Omit if METHOD  is \"GET\".", IsRequired = false },
-            new ToolParameter() { Name = P_MEDIATYPE, Description = "The media type for the Content sent to the URL. Default is \"application/json\". Omit if METHOD is \"GET\".", IsRequired = false }
+            new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. This MUST have at least one value sent.", IsRequired = true },
+            //new ToolParameter() { Name = P_METHOD, Description = "The HTTP method to use for the request. Options: \"GET\",\"POST\",\"PUT\",\"PATCH\". Default is GET.", IsRequired = false },
+            //new ToolParameter() { Name = P_CONTENT, Description = "The content to POST, PUT, or PATCH. Omit if METHOD  is \"GET\".", IsRequired = false },
+            //new ToolParameter() { Name = P_MEDIATYPE, Description = "The media type for the Content sent to the URL. Default is \"application/json\". Omit if METHOD is \"GET\".", IsRequired = false }
         };
 
         public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameterBase[] parameters)
         {
-            var pMethod = parameters.GetParameter(P_METHOD, false);
-            var method = pMethod?.Values.FirstOrDefault() ?? "get";
-            method = method.ToLower();
+            // var pMethod = parameters.GetParameter(P_METHOD, false);
+            // var method = pMethod?.Values.FirstOrDefault() ?? "get";
+            // method = method.ToLower();
 
             var pUrl = parameters.GetParameter(P_URL);
-            var url = pUrl.Values.FirstOrDefault();
+            var url = pUrl.Value;
 
-            string? outgoingContent = null;
-            string? mediaType = null;
-            if (method != "get")
-            {
-                var pContent = parameters.GetParameter(P_CONTENT);
-                outgoingContent = pContent.Values.FirstOrDefault();
+            //string? outgoingContent = null;
+            //string? mediaType = null;
+            //if (method != "get")
+            //{
+            //    var pContent = parameters.GetParameter(P_CONTENT);
+            //    outgoingContent = pContent.Values.FirstOrDefault();
+            //     var pMediaType = parameters.GetParameter(P_MEDIATYPE, false);
+            //     mediaType = pMediaType?.Values.FirstOrDefault() ?? "application/json";
+            // }
 
-                var pMediaType = parameters.GetParameter(P_MEDIATYPE, false);
-                mediaType = pMediaType?.Values.FirstOrDefault() ?? "application/json";
-            }
+            var executionMessage = string.Format("HTTP GET: {0}", url);
 
-            var executionMessage = string.Format("HTTP {0}: {1}", method.ToUpper(), url?.Left(30));
-
-            var task = RunHttp(toolContext, method, url, mediaType, outgoingContent, false, cancellationToken);
+            var task = RunHttp(toolContext, "get", url, null, null, false, cancellationToken);
 
             return new ToolExecutionContext() { ExecutionMessage = executionMessage, ExecutionTask = task };
         }
@@ -60,10 +57,10 @@ namespace Daisi.Tools.Web.Clients
 
         public override string? ValidateGeneratedParameterValues(ToolParameterBase par)
         {
-            var firstVal = par.Values.FirstOrDefault();
+            var firstVal = par.Value;
             if (par.Name == P_URL && (string.IsNullOrWhiteSpace(firstVal) || !IsUrl(firstVal)))
             {
-                return $"The parameter \"{P_URL}\" is not formatted as a fully qualified url. Example: https://google.com";
+                return $"The parameter \"{P_URL}\" is not formatted as a fully qualified url starting with https:// or http://";
             }
 
             return base.ValidateGeneratedParameterValues(par);
@@ -94,7 +91,7 @@ namespace Daisi.Tools.Web.Clients
                     string responseBody = await httpResponse.Content.ReadAsStringAsync();
 
                     result.Output = responseBody;
-                    result.OutputMessage = $"This is the HTML from {url} to use in your responses";
+                    result.OutputMessage = $"This is the HTML from \"{url}\" to use in your responses";
                     result.Success = true;
 
                     var responseMediaType = httpResponse.Content.Headers.ContentType?.MediaType;
@@ -102,7 +99,7 @@ namespace Daisi.Tools.Web.Clients
                     if (responseMediaType?.Contains("html") ?? false)
                     {
                         result.OutputFormat = Protos.V1.InferenceOutputFormats.Html;
-                        if(result.Output.Contains("<body") && result.Output.Contains("</body>"))
+                        if(result.Output.Contains("<body"))
                         {
                             result.Output = result.Output.Substring(result.Output.IndexOf("<body"));
                         }

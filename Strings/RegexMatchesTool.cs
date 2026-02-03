@@ -23,8 +23,8 @@ namespace Daisi.Tools.Strings
 
         public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellation, params ToolParameterBase[] parameters)
         {
-            string input = parameters.GetParameterFirstOrDefault("input");
-            string pattern = parameters.GetParameterFirstOrDefault("pattern");
+            string input = parameters.GetParameterValueOrDefault("input");
+            string pattern = parameters.GetParameterValueOrDefault("pattern");
 
             ToolExecutionContext toolExecutionContext = new()
             {

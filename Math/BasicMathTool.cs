@@ -37,9 +37,9 @@ namespace Daisi.Tools.Math
                     var expressionParam = parameters.GetParameter(P_EXPRESSION);
                     var cultureParam = parameters.GetParameter(P_CULTURE, false);
                     var contextParam = parameters.GetParameter(P_MATHCONTEXT, false);
-                    var e = expressionParam!.Values.FirstOrDefault();
-                    var c = cultureParam!.Values.FirstOrDefault() ?? "en-US";
-                    var mc = contextParam!.Values.FirstOrDefault() ?? "basic";
+                    var e = expressionParam!.Value;
+                    var c = cultureParam!.Value ?? "en-US";
+                    var mc = contextParam!.Value ?? "basic";
 
                     MathContext mathContext =
                         mc.ToLower() switch

@@ -14,6 +14,7 @@
   <ItemGroup>
     <Folder Include="Communications\" />
     <Folder Include="Data\" />
+    <Folder Include="Skills\" />
     <Folder Include="Web\Crawl\" />
     <Folder Include="Social\" />
   </ItemGroup>

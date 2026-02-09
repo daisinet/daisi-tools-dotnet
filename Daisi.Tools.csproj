@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\daisi-sdk-dotnet\Daisi.SDK\Daisi.SDK.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Communications\" />
     <Folder Include="Data\" />
     <Folder Include="Skills\" />
@@ -21,6 +17,11 @@
 
   <ItemGroup>
     <PackageReference Include="MathEvaluator" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0-preview.1.25080.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\daisi-sdk-dotnet\Daisi.SDK\Daisi.SDK.csproj" />
   </ItemGroup>
 
 </Project>

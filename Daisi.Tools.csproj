@@ -8,8 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Daisi.Tools.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Daisi.Tools.Tests\**" />
+    <None Remove="Daisi.Tools.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Coding\" />
     <Folder Include="Communications\" />
     <Folder Include="Data\" />
+    <Folder Include="Files\" />
+    <Folder Include="Information\" />
     <Folder Include="Skills\" />
     <Folder Include="Web\Crawl\" />
     <Folder Include="Social\" />

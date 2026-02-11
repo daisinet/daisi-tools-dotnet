@@ -361,10 +361,22 @@ namespace Daisi.Tools.Tests.Information
     /// <summary>
     /// Shared test fixture that loads the Gemma 3 4B GGUF model once and reuses it
     /// across all inference tests.
+    ///
+    /// GGUF models are stored at: C:\ggufs
+    /// Available models:
+    ///   - gemma-3-4b-it-UD-Q4_K_XL.gguf  (default, used for inference tests)
+    ///   - gemma-3-4b-it-UD-Q8_K_XL.gguf  (higher quality quantization)
+    ///   - gemma-3n-E4B-it-UD-Q2_K_XL.gguf
+    ///   - Qwen3-4B-UD-Q8_K_XL.gguf
+    ///   - DeepSeek-R1-Distill-Llama-8B-Q8_0.gguf
+    ///   - Ministral-3-8B-Instruct-2512-Q4_K_M.gguf
+    ///   - Ministral-3-8B-Instruct-2512-Q8_0.gguf
+    ///   - Grok 3 4B Q8.gguf
     /// </summary>
     public class WebSearchInferenceFixture : IAsyncLifetime
     {
-        private const string ModelFolder = @"C:\GGUFs";
+        // GGUF model location: C:\ggufs
+        private const string ModelFolder = @"C:\ggufs";
         private const string ModelFileName = "gemma-3-4b-it-UD-Q4_K_XL.gguf";
 
         public LocalModel LocalModel { get; private set; } = null!;

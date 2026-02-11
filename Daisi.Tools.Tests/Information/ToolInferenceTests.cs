@@ -101,7 +101,7 @@ namespace Daisi.Tools.Tests.Information
         public async Task LlmSelects_Translate_ForTranslation()
         {
             await AssertToolSelected(
-                "Translate 'Hello, how are you?' into Spanish",
+                "Use the translate tool to translate the phrase 'Hello, how are you?' into Spanish language",
                 "daisi-info-translate",
                 "text", "target-language");
         }
@@ -137,7 +137,7 @@ namespace Daisi.Tools.Tests.Information
         public async Task LlmSelects_SummarizeText_ForTextSummary()
         {
             await AssertToolSelected(
-                "Summarize the following text: The Industrial Revolution was a period of major industrialization and innovation that took place during the late 1700s and early 1800s. It began in Great Britain and spread throughout the world.",
+                "Summarize this text using the summarize tool: The Industrial Revolution was a period of major industrialization and innovation that took place during the late 1700s and early 1800s. It began in Great Britain and spread throughout the world.",
                 "daisi-info-summarize-text",
                 "text");
         }
@@ -146,7 +146,7 @@ namespace Daisi.Tools.Tests.Information
         public async Task LlmSelects_RegexMatching_ForPatternExtraction()
         {
             await AssertToolSelected(
-                "Use regex to extract all email addresses from: contact support@example.com or sales@company.org",
+                "Use the regex matching tool with pattern '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}' on input: contact support@example.com or sales@company.org",
                 "daisi-strings-regex-matching",
                 "input", "pattern");
         }
@@ -155,7 +155,7 @@ namespace Daisi.Tools.Tests.Information
         public async Task LlmSelects_BasicMath_ForCalculation()
         {
             await AssertToolSelected(
-                "Calculate the result of 15 * 7 + 23",
+                "Use the basic math tool to evaluate the expression: 15 * 7 + 23",
                 "daisi-math-basic",
                 "expression");
         }
@@ -167,6 +167,98 @@ namespace Daisi.Tools.Tests.Information
                 "Summarize this HTML for me: <h1>Welcome</h1><p>Our company provides software solutions for enterprise clients.</p>",
                 "daisi-web-html-summarize",
                 "html");
+        }
+
+        // ── New tool inference tests ──
+
+        [Fact]
+        public async Task LlmSelects_UrlEncode_ForEncodingRequest()
+        {
+            await AssertToolSelected(
+                "Use the URL encode tool to URL-encode the string 'hello world & goodbye'",
+                "daisi-strings-url-encode",
+                "text");
+        }
+
+        [Fact]
+        public async Task LlmSelects_JsonFormat_ForJsonFormatting()
+        {
+            await AssertToolSelected(
+                "Pretty-print this JSON: {\"name\":\"John\",\"age\":30}",
+                "daisi-strings-json-format",
+                "json");
+        }
+
+        [Fact]
+        public async Task LlmSelects_Base64_ForEncodingRequest()
+        {
+            await AssertToolSelected(
+                "Base64 encode the text 'Hello World'",
+                "daisi-strings-base64",
+                "text");
+        }
+
+        [Fact]
+        public async Task LlmSelects_DateTime_ForTimeQuery()
+        {
+            await AssertToolSelected(
+                "Use the datetime tool to get the current date and time right now",
+                "daisi-info-datetime",
+                "action");
+        }
+
+        [Fact]
+        public async Task LlmSelects_GenerateCode_ForCodeGeneration()
+        {
+            await AssertToolSelected(
+                "Generate a Python function that checks if a number is prime",
+                "daisi-code-generate",
+                "description", "language");
+        }
+
+        [Fact]
+        public async Task LlmSelects_ExplainCode_ForCodeExplanation()
+        {
+            await AssertToolSelected(
+                "Explain this code to me: def fib(n): return n if n < 2 else fib(n-1) + fib(n-2)",
+                "daisi-code-explain",
+                "code");
+        }
+
+        [Fact]
+        public async Task LlmSelects_UnitConvert_ForConversion()
+        {
+            await AssertToolSelected(
+                "Use the unit convert tool to convert 100 kilometers to miles",
+                "daisi-math-convert",
+                "value", "from", "to");
+        }
+
+        [Fact]
+        public async Task LlmSelects_HtmlToMarkdown_ForHtmlConversion()
+        {
+            await AssertToolSelected(
+                "Convert this HTML to markdown format: <h1>Title</h1><p>Some <strong>bold</strong> text</p>",
+                "daisi-web-html-to-markdown",
+                "html");
+        }
+
+        [Fact]
+        public async Task LlmSelects_Wikipedia_ForFactualQuery()
+        {
+            await AssertToolSelected(
+                "Use the Wikipedia search tool to search for information about quantum computing",
+                "daisi-integration-wikipedia",
+                "query");
+        }
+
+        [Fact]
+        public async Task LlmSelects_ImagePrompt_ForImageDescription()
+        {
+            await AssertToolSelected(
+                "Use the image prompt tool to create an image generation prompt for a fantasy castle in the clouds",
+                "daisi-media-image-prompt",
+                "description");
         }
 
         #endregion

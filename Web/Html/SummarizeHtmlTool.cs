@@ -13,9 +13,11 @@ namespace Daisi.Tools.Web.Html
         public override string Name => "Daisi Summarize HTML";
 
         public override string UseInstructions =>
-            "Use this tool when the user has HTML content and wants a human-readable summary of it. " +
-            "Provide the raw HTML code as the parameter value. " +
-            "Do NOT use this to fetch HTML from the web — use daisi-web-clients-http-get to fetch HTML first, then pass it here.";
+            "Use this tool ONLY when you already have raw HTML markup containing tags like <h1>, <p>, <div>. " +
+            "Takes HTML code and produces a human-readable summary. " +
+            "Keywords: summarize html, html summary, html content. " +
+            "Do NOT use when given a URL — use daisi-web-clients-http-get to fetch the URL first. " +
+            "Do NOT use for plain text — use daisi-info-summarize-text instead.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){
@@ -58,6 +60,7 @@ namespace Daisi.Tools.Web.Html
 
             result.Output = infResult.Content;
             result.OutputMessage = $"This is a summary of the HTML";
+            result.Success = true;
 
             return result;
         }

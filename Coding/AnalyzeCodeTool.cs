@@ -14,8 +14,10 @@ namespace Daisi.Tools.Coding
         public override string Name => "Daisi Analyze Code";
 
         public override string UseInstructions =>
-            "Use this tool to analyze source code for potential issues. " +
-            "Provide the code and optionally specify the language and focus area.";
+            "Use this tool to analyze source code for bugs, security issues, style problems, or performance concerns. " +
+            "Provide the code snippet and get a detailed review with severity ratings. " +
+            "Keywords: analyze code, code review, find bugs, security audit, code quality. " +
+            "Do NOT use for explaining code — use daisi-code-explain for explanations.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){

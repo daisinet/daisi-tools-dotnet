@@ -19,7 +19,11 @@ namespace Daisi.Tools.Math
 
         public override string Name => "Daisi Math";
 
-        public override string UseInstructions => "Use this tool to evaluate basic math expressions and returns a numeric result from the expression provided.";
+        public override string UseInstructions =>
+            "Use this tool to evaluate mathematical expressions and calculate numeric results. " +
+            "Examples: 2+3, 15*7+23, sqrt(144), sin(45). " +
+            "Keywords: math, calculate, evaluate, arithmetic, expression, formula, compute, add, multiply, divide, subtract. " +
+            "Do NOT use for unit conversion — use daisi-math-convert for that.";
 
         public override ToolParameter[] Parameters => new ToolParameter[]{
             new ToolParameter(){ Name = P_EXPRESSION, Description = "This is the math expression that is to be evaluated for a single value", IsRequired = true },
@@ -38,8 +42,8 @@ namespace Daisi.Tools.Math
                     var cultureParam = parameters.GetParameter(P_CULTURE, false);
                     var contextParam = parameters.GetParameter(P_MATHCONTEXT, false);
                     var e = expressionParam!.Value;
-                    var c = cultureParam!.Value ?? "en-US";
-                    var mc = contextParam!.Value ?? "basic";
+                    var c = cultureParam?.Value ?? "en-US";
+                    var mc = contextParam?.Value ?? "basic";
 
                     MathContext mathContext =
                         mc.ToLower() switch

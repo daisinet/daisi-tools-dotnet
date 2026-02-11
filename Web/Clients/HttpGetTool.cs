@@ -19,9 +19,12 @@ namespace Daisi.Tools.Web.Clients
        // const string P_MEDIATYPE = "media-type";
         public override string Id => "daisi-web-clients-http-get";
         public override string Name => "Daisi Http Get";
-        public override string UseInstructions => "Use this tool ONLY when you already have a specific URL and need to fetch its content. " +
-            "This sends a HTTP GET request to a known URL and returns the raw response (HTML or JSON). " +
-            "Do NOT use this for searching — use the web search tool instead if you need to find information.";
+        public override string UseInstructions =>
+            "Use this tool when a specific URL is provided and you need to fetch, read, or retrieve its content. " +
+            "Sends HTTP GET to the URL and returns the response (HTML, JSON, or text). " +
+            "Keywords: fetch url, get url, http get, read url, visit url, open url, download page. " +
+            "ALWAYS use this FIRST when a URL needs to be summarized — fetch the content before summarizing. " +
+            "Do NOT use for searching — use daisi-info-web-search for search queries.";
 
         public override ToolParameter[] Parameters => new[]{
             new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. This MUST have at least one value sent.", IsRequired = true },

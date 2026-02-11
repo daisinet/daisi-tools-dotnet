@@ -17,10 +17,10 @@ namespace Daisi.Tools.Information
         public override string Name => "Daisi Web Search";
 
         public override string UseInstructions =>
-            "Use this tool when the user wants to search the web, find information, look something up, or needs current/recent data. " +
-            "This is a WEB SEARCH engine — it takes a search query and returns relevant URLs. " +
-            "Do NOT use this for fetching a specific known URL. Use this for discovering information. " +
-            "Returns a JSON array of URL strings from the search results.";
+            "Use this tool for general web search using a search engine. Takes a search query and returns relevant URLs. " +
+            "Keywords: search the web, google, find online, look up, find information, current news, recent data, breakthroughs, discover. " +
+            "Do NOT use for fetching a specific known URL — use daisi-web-clients-http-get for that. " +
+            "Only use daisi-integration-wikipedia when the user explicitly mentions Wikipedia or wiki.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){

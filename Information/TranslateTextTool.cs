@@ -14,8 +14,9 @@ namespace Daisi.Tools.Information
         public override string Name => "Daisi Translate Text";
 
         public override string UseInstructions =>
-            "Use this tool to translate text from one language to another. " +
-            "Provide the text and target language. Source language is auto-detected if not specified.";
+            "Use this tool to translate text between human languages such as English, Spanish, French, German, Japanese, Chinese, etc. " +
+            "Provide the text and the target language name. " +
+            "Keywords: translate, language translation, Spanish, French, German, Japanese, translate to.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){

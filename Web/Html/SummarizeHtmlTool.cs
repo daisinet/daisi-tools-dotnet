@@ -13,10 +13,9 @@ namespace Daisi.Tools.Web.Html
         public override string Name => "Daisi Summarize HTML";
 
         public override string UseInstructions =>
-            "Do NOT use this tool to get HTML from the web. " +
-            "To get HTML from the web use the daisi-web-clients-http first, " +
-            "then use this tool with the HTML output from daisi-web-clients-http-get set as a value for the \"html\" parameter." +
-            "Use this tool to produce a summary of HTML code that you have retrieved. ";
+            "Use this tool when the user has HTML content and wants a human-readable summary of it. " +
+            "Provide the raw HTML code as the parameter value. " +
+            "Do NOT use this to fetch HTML from the web — use daisi-web-clients-http-get to fetch HTML first, then pass it here.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){

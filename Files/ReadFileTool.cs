@@ -13,8 +13,9 @@ namespace Daisi.Tools.Files
         public override string Name => "Daisi Read File";
 
         public override string UseInstructions =>
-            "Use this tool to read the contents of a file from disk. " +
-            "Files larger than 1MB will be truncated to protect the context window.";
+            "Use this tool when the user wants to read or view a file's contents from the local filesystem. " +
+            "Provide the full file path. Returns the text content of the file. " +
+            "Files larger than 1MB will be truncated.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){

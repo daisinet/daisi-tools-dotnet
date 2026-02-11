@@ -11,23 +11,26 @@ namespace Daisi.Tools.Information
     {
         private const string P_QUERY = "query";
         private const string P_MAX_RESULTS = "max-results";
+        internal const string GoogleSearchBaseUrl = "https://www.google.com/search";
 
         public override string Id => "daisi-info-web-search";
         public override string Name => "Daisi Web Search";
 
         public override string UseInstructions =>
-            "Use this tool to search the web for information. " +
-            "Provide a search query and optionally the maximum number of result URLs to return.";
+            "Use this tool when the user wants to search the web, find information, look something up, or needs current/recent data. " +
+            "This is a WEB SEARCH engine — it takes a search query and returns relevant URLs. " +
+            "Do NOT use this for fetching a specific known URL. Use this for discovering information. " +
+            "Returns a JSON array of URL strings from the search results.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){
                 Name = P_QUERY,
-                Description = "The search query to send to Google.",
+                Description = "The search query to use for web search.",
                 IsRequired = true
             },
             new ToolParameter(){
                 Name = P_MAX_RESULTS,
-                Description = "The maximum number of result URLs to return. Default is 5.",
+                Description = "The maximum number of results to return. Default is 5.",
                 IsRequired = false
             }
         ];
@@ -65,19 +68,21 @@ namespace Daisi.Tools.Information
                 }
 
                 using var client = httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
 
-                var searchUrl = $"https://www.google.com/search?q={Uri.EscapeDataString(query)}";
+                var searchUrl = $"{GoogleSearchBaseUrl}?q={Uri.EscapeDataString(query)}";
                 var html = await client.GetStringAsync(searchUrl, cancellationToken);
 
                 var urls = ExtractUrls(html, maxResults);
 
-                var result = new ToolResult();
-                result.OutputFormat = InferenceOutputFormats.Json;
-                result.Output = JsonSerializer.Serialize(urls);
-                result.OutputMessage = $"Found {urls.Length} search result URLs";
-                result.Success = true;
+                var toolResult = new ToolResult();
+                toolResult.OutputFormat = InferenceOutputFormats.Json;
+                toolResult.Output = JsonSerializer.Serialize(urls);
+                toolResult.OutputMessage = $"Found {urls.Length} search results";
+                toolResult.Success = true;
 
-                return result;
+                return toolResult;
             }
             catch (Exception ex)
             {
@@ -85,9 +90,15 @@ namespace Daisi.Tools.Information
             }
         }
 
+        /// <summary>
+        /// Extracts URLs from Google search HTML.
+        /// Handles both url= and q= parameter patterns, and both literal (https://) and percent-encoded (https%3A%2F%2F) schemes.
+        /// </summary>
         internal static string[] ExtractUrls(string html, int maxResults)
         {
-            var pattern = @"url=((?!.*(google|youtube))([http|https]\S*))&amp;";
+            // Match both url= and q= parameter patterns (Google uses both)
+            // Handle both literal (https://) and percent-encoded (https%3A%2F%2F) schemes
+            var pattern = @"(?:url|q)=(https?(?:%3A%2F%2F|://)(?!(?:[^&]*\.)?(?:google|youtube)\.[^&]*)[^&\s""<>]+)";
             var matches = Regex.Matches(html, pattern);
 
             var urls = matches

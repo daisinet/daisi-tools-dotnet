@@ -14,7 +14,9 @@ namespace Daisi.Tools.Strings
 
         public override string Name => "Daisi Regex Matching Tool";
 
-        public override string UseInstructions => "Use this tool to extract strings from a source text.";
+        public override string UseInstructions =>
+            "Use this tool when the user wants to find, extract, or match text patterns using regular expressions (regex). " +
+            "Provide the source text and the regex pattern. Returns a JSON array of matched strings.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){ Name = "input", Description="This is the source text from which matches will be searched and extracted.", IsRequired = true },

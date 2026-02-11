@@ -14,8 +14,9 @@ namespace Daisi.Tools.Files
         public override string Name => "Daisi Write File";
 
         public override string UseInstructions =>
-            "Use this tool to write content to a file on disk. " +
-            "Creates parent directories if they do not exist. Overwrites existing files.";
+            "Use this tool when the user wants to write, save, or create a file on the local filesystem. " +
+            "Provide the full file path and the content to write. " +
+            "Creates parent directories if needed. Overwrites existing files.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){

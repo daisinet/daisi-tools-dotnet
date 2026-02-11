@@ -14,8 +14,8 @@ namespace Daisi.Tools.Files
         public override string Name => "Daisi List Directory";
 
         public override string UseInstructions =>
-            "Use this tool to list files and subdirectories in a directory. " +
-            "Optionally provide a glob pattern to filter results.";
+            "Use this tool when the user wants to list, browse, or see what files and folders are in a directory. " +
+            "Provide the full directory path. Returns a JSON list of file and folder names with metadata.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){

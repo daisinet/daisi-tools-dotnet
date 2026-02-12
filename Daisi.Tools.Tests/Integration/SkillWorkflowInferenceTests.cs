@@ -5,7 +5,6 @@ using Daisi.SDK.Models.Skills;
 using Daisi.SDK.Models.Tools;
 using Daisi.SDK.Skills;
 using Daisi.Tools.Tests.Helpers;
-using Daisi.Tools.Tests.Information;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Text;
@@ -22,10 +21,10 @@ namespace Daisi.Tools.Tests.Integration
     [Collection("InferenceTests")]
     public class SkillWorkflowInferenceTests : IDisposable
     {
-        private readonly WebSearchInferenceFixture _fixture;
+        private readonly ToolInferenceFixture _fixture;
         private readonly IServiceProvider? _originalServices;
 
-        public SkillWorkflowInferenceTests(WebSearchInferenceFixture fixture)
+        public SkillWorkflowInferenceTests(ToolInferenceFixture fixture)
         {
             _fixture = fixture;
             _originalServices = DaisiStaticSettings.Services;
@@ -177,106 +176,6 @@ namespace Daisi.Tools.Tests.Integration
                 toolSession.CurrentTool.Id == "daisi-info-summarize-text" ||
                 toolSession.CurrentTool.Id == "daisi-web-html-summarize",
                 $"Expected html-to-markdown, summarize-text, or html-summarize but got '{toolSession.CurrentTool.Id}'");
-        }
-
-        [Fact]
-        public async Task Workflow_DateAwareSearch_DateTimeThenWebSearch()
-        {
-            // date-aware-search: DateTime → WebSearch
-            var skills = LoadSkillsByName("date-aware-search");
-            Assert.NotEmpty(skills);
-
-            var googleHtml = ToolTestHelpers.CreateMockGoogleHtml(
-                "https://example.com/ai-regulation-2026");
-            var handler = new MockHttpMessageHandler(googleHtml, HttpStatusCode.OK);
-
-            var toolSession = await CreateSkilledToolSessionAsync(
-                "What are the latest AI regulation news?",
-                handler, skills);
-
-            // First tool should be DateTime (to get current date)
-            Assert.NotNull(toolSession.CurrentTool);
-            Assert.Equal("daisi-info-datetime", toolSession.CurrentTool!.Id);
-
-            // Execute DateTime and add result to history
-            var dateOutput = await ExecuteCurrentTool(toolSession);
-            Assert.False(string.IsNullOrWhiteSpace(dateOutput));
-            toolSession.AddToolResultToHistory(dateOutput);
-
-            // Next tool should be WebSearch
-            await toolSession.GetNextToolAsync();
-            Assert.NotNull(toolSession.CurrentTool);
-            Assert.Equal("daisi-info-web-search", toolSession.CurrentTool!.Id);
-        }
-
-        [Fact]
-        public async Task Workflow_Research_WebSearchThenHttpGet()
-        {
-            // research: WebSearch → HttpGet
-            var skills = LoadSkillsByName("research");
-            Assert.NotEmpty(skills);
-
-            var googleHtml = ToolTestHelpers.CreateMockGoogleHtml(
-                "https://example.com/quantum-research");
-            var handler = new MockHttpMessageHandler(googleHtml, HttpStatusCode.OK);
-
-            var toolSession = await CreateSkilledToolSessionAsync(
-                "Research quantum computing advances",
-                handler, skills);
-
-            // First tool should be WebSearch
-            Assert.NotNull(toolSession.CurrentTool);
-            Assert.Equal("daisi-info-web-search", toolSession.CurrentTool!.Id);
-
-            // Execute WebSearch and add result to history
-            var searchOutput = await ExecuteCurrentTool(toolSession);
-            Assert.False(string.IsNullOrWhiteSpace(searchOutput));
-            toolSession.AddToolResultToHistory(searchOutput);
-
-            // Next tool should be HttpGet (to fetch one of the URLs)
-            await toolSession.GetNextToolAsync();
-            Assert.NotNull(toolSession.CurrentTool);
-            Assert.Equal("daisi-web-clients-http-get", toolSession.CurrentTool!.Id);
-        }
-
-        [Fact]
-        public async Task Workflow_FactCheck_WikipediaOrWebSearchThenTheOther()
-        {
-            // fact-check: Wikipedia or WebSearch → the other
-            var skills = LoadSkillsByName("fact-check");
-            Assert.NotEmpty(skills);
-
-            var wikiResponse = ToolTestHelpers.CreateMockWikipediaResponse(
-                ("Great Wall of China", "Ancient fortification in northern China"));
-            var handler = new MockHttpMessageHandler(wikiResponse, HttpStatusCode.OK);
-
-            var toolSession = await CreateSkilledToolSessionAsync(
-                "Is the Great Wall of China visible from space?",
-                handler, skills);
-
-            // First tool should be Wikipedia or WebSearch
-            Assert.NotNull(toolSession.CurrentTool);
-            var firstToolId = toolSession.CurrentTool!.Id;
-            Assert.True(
-                firstToolId == "daisi-integration-wikipedia" || firstToolId == "daisi-info-web-search",
-                $"Expected wikipedia or web-search as first tool but got '{firstToolId}'");
-
-            // Execute first tool and add result to history
-            var firstOutput = await ExecuteCurrentTool(toolSession);
-            Assert.False(string.IsNullOrWhiteSpace(firstOutput));
-            toolSession.AddToolResultToHistory(firstOutput);
-
-            // Next tool should be the other one (or another valid research tool)
-            await toolSession.GetNextToolAsync();
-            if (toolSession.CurrentTool is not null)
-            {
-                Assert.True(
-                    toolSession.CurrentTool.Id == "daisi-integration-wikipedia" ||
-                    toolSession.CurrentTool.Id == "daisi-info-web-search" ||
-                    toolSession.CurrentTool.Id == "daisi-web-clients-http-get",
-                    $"Expected wikipedia, web-search, or http-get as second tool but got '{toolSession.CurrentTool.Id}'");
-            }
-            // It's acceptable if the model decides no more tools are needed after the first result
         }
 
         [Fact]

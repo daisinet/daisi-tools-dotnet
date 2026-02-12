@@ -3,7 +3,6 @@ using Daisi.SDK.Models.Tools;
 using Daisi.Tools.Information;
 using Daisi.Tools.Integration;
 using Daisi.Tools.Tests.Helpers;
-using Daisi.Tools.Tests.Information;
 using Daisi.Tools.Web.Clients;
 using Daisi.Tools.Web.Html;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,85 +64,8 @@ namespace Daisi.Tools.Tests.Skills
         }
 
         [Fact]
-        public async Task Research_SearchThenFetchThenSummarize()
+        public async Task FactCheck_WikipediaSearch()
         {
-            // Simulate: WebSearch → HttpGet → HtmlToMarkdown → SummarizeText
-
-            // Step 1: WebSearch returns URLs
-            var googleHtml = ToolTestHelpers.CreateMockGoogleHtml("https://example.com/article1");
-            var searchHandler = new MockHttpMessageHandler(googleHtml, HttpStatusCode.OK);
-            var searchContext = ToolTestHelpers.BuildContextWithMockHttp(searchHandler);
-
-            var searchTool = new WebSearchTool();
-            var searchParams = new ToolParameterBase[]
-            {
-                new() { Name = "query", Value = "artificial intelligence research", IsRequired = true }
-            };
-            var searchExec = searchTool.GetExecutionContext(searchContext, CancellationToken.None, searchParams);
-            var searchResult = await searchExec.ExecutionTask;
-            Assert.True(searchResult.Success);
-
-            // Step 2: HttpGet fetches the first URL
-            var pageHtml = "<html><body><h1>AI Research</h1><p>Latest findings in AI.</p></body></html>";
-            var fetchHandler = new MockHttpMessageHandler(pageHtml, HttpStatusCode.OK);
-            var fetchContext = ToolTestHelpers.BuildContextWithMockHttp(fetchHandler);
-
-            var httpGet = new HttpGetTool();
-            var fetchParams = new ToolParameterBase[]
-            {
-                new() { Name = "url", Value = "https://example.com/article1", IsRequired = true }
-            };
-            var fetchExec = httpGet.GetExecutionContext(fetchContext, CancellationToken.None, fetchParams);
-            var fetchResult = await fetchExec.ExecutionTask;
-            Assert.True(fetchResult.Success);
-
-            // Step 3: Convert to Markdown
-            var convertResult = HtmlToMarkdownTool.Execute(fetchResult.Output);
-            Assert.True(convertResult.Success);
-
-            // Step 4: Summarize
-            var summarize = new SummarizeTextTool();
-            var summaryContext = new MockToolContext(req =>
-                Task.FromResult(new SendInferenceResponse { Content = "AI research is advancing rapidly." }));
-            var summaryParams = new ToolParameterBase[]
-            {
-                new() { Name = "text", Value = convertResult.Output, IsRequired = true }
-            };
-            var summaryExec = summarize.GetExecutionContext(summaryContext, CancellationToken.None, summaryParams);
-            var summaryResult = await summaryExec.ExecutionTask;
-            Assert.True(summaryResult.Success);
-        }
-
-        [Fact]
-        public async Task DateAwareSearch_GetDateThenSearch()
-        {
-            // Simulate: DateTime → WebSearch
-
-            // Step 1: Get current date
-            var dateResult = DateTimeTool.Execute("now", null, null, "yyyy", "UTC");
-            Assert.True(dateResult.Success);
-            var currentYear = dateResult.Output;
-
-            // Step 2: Use date in search query
-            var googleHtml = ToolTestHelpers.CreateMockGoogleHtml("https://news.example.com/ai-2025");
-            var searchHandler = new MockHttpMessageHandler(googleHtml, HttpStatusCode.OK);
-            var searchContext = ToolTestHelpers.BuildContextWithMockHttp(searchHandler);
-
-            var searchTool = new WebSearchTool();
-            var searchParams = new ToolParameterBase[]
-            {
-                new() { Name = "query", Value = $"AI regulation news {currentYear}", IsRequired = true }
-            };
-            var searchExec = searchTool.GetExecutionContext(searchContext, CancellationToken.None, searchParams);
-            var searchResult = await searchExec.ExecutionTask;
-            Assert.True(searchResult.Success);
-        }
-
-        [Fact]
-        public async Task FactCheck_SearchAndWikipedia()
-        {
-            // Simulate: WebSearch + WikipediaSearch in parallel
-
             // Wikipedia search
             var wikiResponse = ToolTestHelpers.CreateMockWikipediaResponse(
                 ("Speed of light", "The speed of light in vacuum is 299,792,458 metres per second"));
@@ -156,27 +78,8 @@ namespace Daisi.Tools.Tests.Skills
                 new() { Name = "query", Value = "speed of light", IsRequired = true }
             };
             var wikiExec = wikiTool.GetExecutionContext(wikiContext, CancellationToken.None, wikiParams);
-
-            // Web search
-            var googleHtml = ToolTestHelpers.CreateMockGoogleHtml("https://physics.example.com/speed-of-light");
-            var searchHandler = new MockHttpMessageHandler(googleHtml, HttpStatusCode.OK);
-            var searchContext = ToolTestHelpers.BuildContextWithMockHttp(searchHandler);
-
-            var searchTool = new WebSearchTool();
-            var searchParams = new ToolParameterBase[]
-            {
-                new() { Name = "query", Value = "speed of light fact check", IsRequired = true }
-            };
-            var searchExec = searchTool.GetExecutionContext(searchContext, CancellationToken.None, searchParams);
-
-            // Execute both in parallel
-            var wikiTask = wikiExec.ExecutionTask;
-            var searchTask = searchExec.ExecutionTask;
-
-            await Task.WhenAll(wikiTask, searchTask);
-
-            Assert.True(wikiTask.Result.Success);
-            Assert.True(searchTask.Result.Success);
+            var wikiResult = await wikiExec.ExecutionTask;
+            Assert.True(wikiResult.Success);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Daisi.Tools.Drive
     {
         private const string P_QUERY = "query";
         private const string P_TOP_K = "top-k";
+        private const string P_REPOSITORY_ID = "repository-id";
 
         public override string Id => "daisi-drive-search";
         public override string Name => "Daisi Drive Search";
@@ -18,7 +19,8 @@ namespace Daisi.Tools.Drive
         public override string UseInstructions =>
             "Use this tool to search Drive files semantically. Finds files whose content is relevant to the query. " +
             "Keywords: search files, find in drive, search documents, find document, search my files. " +
-            "Use when the user references files with #filename or asks to find content across their files.";
+            "Use when the user references files with #filename or asks to find content across their files. " +
+            "Optionally scope to a specific repository using repository-id.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){
@@ -30,6 +32,11 @@ namespace Daisi.Tools.Drive
                 Name = P_TOP_K,
                 Description = "Maximum number of results to return. Default is 5.",
                 IsRequired = false
+            },
+            new ToolParameter(){
+                Name = P_REPOSITORY_ID,
+                Description = "Optional repository ID to scope search to a specific repository.",
+                IsRequired = false
             }
         ];
 
@@ -39,8 +46,9 @@ namespace Daisi.Tools.Drive
             var topKStr = parameters.GetParameterValueOrDefault(P_TOP_K, "5");
             if (!int.TryParse(topKStr, out var topK))
                 topK = 5;
+            var repositoryId = parameters.GetParameterValueOrDefault(P_REPOSITORY_ID, null);
 
-            Task<ToolResult> task = SearchFiles(toolContext, query, topK, cancellation);
+            Task<ToolResult> task = SearchFiles(toolContext, query, topK, repositoryId, cancellation);
 
             return new ToolExecutionContext()
             {
@@ -49,7 +57,7 @@ namespace Daisi.Tools.Drive
             };
         }
 
-        private async Task<ToolResult> SearchFiles(IToolContext toolContext, string query, int topK, CancellationToken cancellation)
+        private async Task<ToolResult> SearchFiles(IToolContext toolContext, string query, int topK, string? repositoryId, CancellationToken cancellation)
         {
             try
             {
@@ -64,7 +72,17 @@ namespace Daisi.Tools.Drive
                 }
 
                 var client = driveClientFactory.Create();
-                var response = await client.VectorSearchAsync(query, topK, includeSystemFiles: true, cancellationToken: cancellation);
+                var request = new VectorSearchRequest
+                {
+                    Query = query,
+                    TopK = topK,
+                    IncludeSystemFiles = true
+                };
+
+                if (!string.IsNullOrEmpty(repositoryId))
+                    request.RepositoryIds.Add(repositoryId);
+
+                var response = await client.VectorSearchAsync(request, cancellationToken: cancellation);
 
                 var results = response.Results.Select(r => new
                 {

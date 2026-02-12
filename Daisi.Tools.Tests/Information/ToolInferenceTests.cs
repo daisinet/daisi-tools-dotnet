@@ -3,6 +3,7 @@ using Daisi.Host.Core.Services;
 using Daisi.Host.Core.Services.Models;
 using Daisi.SDK.Models;
 using Daisi.SDK.Models.Tools;
+using Daisi.Tools.Tests.Helpers;
 using System.Net;
 
 namespace Daisi.Tools.Tests.Information
@@ -15,10 +16,10 @@ namespace Daisi.Tools.Tests.Information
     [Collection("InferenceTests")]
     public class ToolInferenceTests : IDisposable
     {
-        private readonly WebSearchInferenceFixture _fixture;
+        private readonly ToolInferenceFixture _fixture;
         private readonly IServiceProvider? _originalServices;
 
-        public ToolInferenceTests(WebSearchInferenceFixture fixture)
+        public ToolInferenceTests(ToolInferenceFixture fixture)
         {
             _fixture = fixture;
             _originalServices = DaisiStaticSettings.Services;
@@ -69,15 +70,6 @@ namespace Daisi.Tools.Tests.Information
         #endregion
 
         #region Tool Selection Tests — one per tool
-
-        [Fact]
-        public async Task LlmSelects_WebSearch_ForSearchQuery()
-        {
-            await AssertToolSelected(
-                "Search the web for the latest news about artificial intelligence",
-                "daisi-info-web-search",
-                "query");
-        }
 
         [Fact]
         public async Task LlmSelects_HttpGet_ForUrlFetch()

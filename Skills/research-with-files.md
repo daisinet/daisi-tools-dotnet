@@ -19,8 +19,8 @@ tools:
 
 When the user asks you to deeply research a topic and save the results:
 
-1. Use **Web Search** to find relevant sources for the topic.
-2. For the top 2-3 most relevant URLs, use **HTTP Get** to fetch each page.
+1. Use **Wikipedia Search** to find relevant factual information about the topic.
+2. If the user provides specific URLs, use **HTTP Get** to fetch each page.
 3. Use **HTML to Markdown** to convert each page's HTML to clean Markdown.
 4. Use **Summarize Text** to summarize each page individually.
 5. Synthesize all summaries into a comprehensive research document.

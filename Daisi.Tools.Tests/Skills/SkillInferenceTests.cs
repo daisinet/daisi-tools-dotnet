@@ -3,7 +3,7 @@ using Daisi.Host.Core.Services;
 using Daisi.Host.Core.Services.Models;
 using Daisi.SDK.Models;
 using Daisi.SDK.Models.Tools;
-using Daisi.Tools.Tests.Information;
+using Daisi.Tools.Tests.Helpers;
 using System.Net;
 
 namespace Daisi.Tools.Tests.Skills
@@ -16,10 +16,10 @@ namespace Daisi.Tools.Tests.Skills
     [Collection("InferenceTests")]
     public class SkillInferenceTests : IDisposable
     {
-        private readonly WebSearchInferenceFixture _fixture;
+        private readonly ToolInferenceFixture _fixture;
         private readonly IServiceProvider? _originalServices;
 
-        public SkillInferenceTests(WebSearchInferenceFixture fixture)
+        public SkillInferenceTests(ToolInferenceFixture fixture)
         {
             _fixture = fixture;
             _originalServices = DaisiStaticSettings.Services;

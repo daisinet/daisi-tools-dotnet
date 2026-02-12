@@ -1,6 +1,5 @@
 using Daisi.Protos.V1;
 using Daisi.SDK.Models;
-using Daisi.Tools.Tests.Information;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 
@@ -50,7 +49,7 @@ namespace Daisi.Tools.Tests.Helpers
         /// Returns the ToolContent response content string.
         /// </summary>
         public static async Task<string> AssertToolSelectedAndExecuted(
-            WebSearchInferenceFixture fixture,
+            ToolInferenceFixture fixture,
             Daisi.Host.Core.Services.Models.ToolSession toolSession,
             string expectedToolId)
         {

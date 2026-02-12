@@ -1,5 +1,5 @@
 using Daisi.SDK.Models;
-using Daisi.Tools.Tests.Information;
+using Daisi.Tools.Tests.Helpers;
 using System.Net;
 
 namespace Daisi.Tools.Tests.Integration
@@ -16,10 +16,10 @@ namespace Daisi.Tools.Tests.Integration
     [Collection("InferenceTests")]
     public class NaturalLanguageToolSelectionTests : IDisposable
     {
-        private readonly WebSearchInferenceFixture _fixture;
+        private readonly ToolInferenceFixture _fixture;
         private readonly IServiceProvider? _originalServices;
 
-        public NaturalLanguageToolSelectionTests(WebSearchInferenceFixture fixture)
+        public NaturalLanguageToolSelectionTests(ToolInferenceFixture fixture)
         {
             _fixture = fixture;
             _originalServices = DaisiStaticSettings.Services;
@@ -120,14 +120,6 @@ namespace Daisi.Tools.Tests.Integration
         }
 
         [Fact]
-        public async Task Natural_WebSearch_SelectsWebSearch()
-        {
-            await AssertToolSelected(
-                "What are the most recent quantum computing breakthroughs?",
-                "daisi-info-web-search");
-        }
-
-        [Fact]
         public async Task Natural_FetchUrl_SelectsHttpGet()
         {
             await AssertToolSelected(
@@ -136,11 +128,11 @@ namespace Daisi.Tools.Tests.Integration
         }
 
         [Fact]
-        public async Task Natural_WhoIs_SelectsWikipediaOrWebSearch()
+        public async Task Natural_WhoIs_SelectsWikipedia()
         {
-            await AssertToolSelectedOneOf(
+            await AssertToolSelected(
                 "Who was Albert Einstein?",
-                "daisi-integration-wikipedia", "daisi-info-web-search");
+                "daisi-integration-wikipedia");
         }
 
         [Fact]

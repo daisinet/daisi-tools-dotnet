@@ -23,8 +23,7 @@ namespace Daisi.Tools.Web.Clients
             "Use this tool when a specific URL is provided and you need to fetch, read, or retrieve its content. " +
             "Sends HTTP GET to the URL and returns the response (HTML, JSON, or text). " +
             "Keywords: fetch url, get url, http get, read url, visit url, open url, download page. " +
-            "ALWAYS use this FIRST when a URL needs to be summarized — fetch the content before summarizing. " +
-            "Do NOT use for searching — use daisi-info-web-search for search queries.";
+            "ALWAYS use this FIRST when a URL needs to be summarized — fetch the content before summarizing.";
 
         public override ToolParameter[] Parameters => new[]{
             new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. This MUST have at least one value sent.", IsRequired = true },

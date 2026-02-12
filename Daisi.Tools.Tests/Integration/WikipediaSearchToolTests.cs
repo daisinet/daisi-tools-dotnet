@@ -2,7 +2,6 @@ using Daisi.Protos.V1;
 using Daisi.SDK.Models.Tools;
 using Daisi.Tools.Integration;
 using Daisi.Tools.Tests.Helpers;
-using Daisi.Tools.Tests.Information;
 using System.Net;
 using System.Text.Json;
 

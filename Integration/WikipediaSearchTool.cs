@@ -18,8 +18,7 @@ namespace Daisi.Tools.Integration
         public override string UseInstructions =>
             "Use this tool to search Wikipedia encyclopedia articles for factual and encyclopedic information. " +
             "Returns article titles, snippets, and URLs from Wikipedia.org. " +
-            "Keywords: wikipedia, encyclopedia, wiki, factual lookup, who is, what is, biography, history. " +
-            "Do NOT use for general web search — use daisi-info-web-search for web search.";
+            "Keywords: wikipedia, encyclopedia, wiki, factual lookup, who is, what is, biography, history.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter() { Name = P_QUERY, Description = "The search query to look up on Wikipedia.", IsRequired = true },

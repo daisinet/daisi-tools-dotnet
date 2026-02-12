@@ -7,7 +7,6 @@ using Daisi.SDK.Models.Skills;
 using Daisi.SDK.Models.Tools;
 using Daisi.SDK.Skills;
 using Daisi.Tools.Tests.Helpers;
-using Daisi.Tools.Tests.Information;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Text;
@@ -23,18 +22,18 @@ namespace Daisi.Tools.Tests.Skills
     /// selected tools execute successfully.
     ///
     /// GGUF models are stored at: C:\ggufs
-    /// Uses the shared WebSearchInferenceFixture (Gemma 3 4B IT Q4).
+    /// Uses the shared ToolInferenceFixture (Gemma 3 4B IT Q4).
     /// </summary>
     [Collection("InferenceTests")]
     public class SkilledInferenceTests : IDisposable
     {
-        private readonly WebSearchInferenceFixture _fixture;
+        private readonly ToolInferenceFixture _fixture;
         private readonly IServiceProvider? _originalServices;
 
         // GGUF models are stored at: C:\ggufs
-        // See WebSearchInferenceFixture for the full list of available models.
+        // See ToolInferenceFixture for the full list of available models.
 
-        public SkilledInferenceTests(WebSearchInferenceFixture fixture)
+        public SkilledInferenceTests(ToolInferenceFixture fixture)
         {
             _fixture = fixture;
             _originalServices = DaisiStaticSettings.Services;
@@ -200,7 +199,6 @@ namespace Daisi.Tools.Tests.Skills
             var skills = LoadTestSkills();
             var names = skills.Select(s => s.Name).ToList();
 
-            Assert.Contains("web-search", names);
             Assert.Contains("website-summary", names);
             Assert.Contains("research", names);
             Assert.Contains("code-assistant", names);
@@ -222,15 +220,6 @@ namespace Daisi.Tools.Tests.Skills
         #endregion
 
         #region Skilled Tool Selection — verify skill prompts guide correct tool selection
-
-        [Fact]
-        public async Task Skilled_WebSearchQuery_SelectsWebSearchTool()
-        {
-            // The web-search skill instructs the model to use daisi-info-web-search
-            await AssertSkilledToolSelected(
-                "Search the web for the latest news about climate change",
-                "daisi-info-web-search");
-        }
 
         [Fact]
         public async Task Skilled_UrlFetch_SelectsHttpGet()
@@ -411,36 +400,6 @@ namespace Daisi.Tools.Tests.Skills
             }
         }
 
-        [Fact]
-        public async Task Skilled_WebSearchExecution_ReturnsUrls()
-        {
-            var googleHtml = ToolTestHelpers.CreateMockGoogleHtml(
-                "https://example.com/result1",
-                "https://example.com/result2");
-            var handler = new MockHttpMessageHandler(googleHtml, HttpStatusCode.OK);
-
-            var serviceProvider = BuildServices(handler);
-            DaisiStaticSettings.Services = serviceProvider;
-
-            var toolSession = await CreateSkilledToolSessionAsync(
-                "Search the web for machine learning tutorials", handler);
-
-            Assert.NotNull(toolSession.CurrentTool);
-            Assert.Equal("daisi-info-web-search", toolSession.CurrentTool!.Id);
-
-            var context = _fixture.CreateToolContext();
-            var responses = new List<SendInferenceResponse>();
-            await foreach (var response in toolSession.ExecuteToolAsync(context))
-            {
-                if (response is not null)
-                    responses.Add(response);
-            }
-
-            var toolContent = responses.FirstOrDefault(r => r.Type == InferenceResponseTypes.ToolContent);
-            Assert.NotNull(toolContent);
-            Assert.Contains("example.com", toolContent!.Content);
-        }
-
         #endregion
 
         #region Skills Context Impact — verify skills change behavior vs no skills
@@ -453,8 +412,8 @@ namespace Daisi.Tools.Tests.Skills
             var emptySkills = new List<DaisiSkill>();
 
             await AssertSkilledToolSelected(
-                "Search the web for artificial intelligence news",
-                "daisi-info-web-search",
+                "Use the datetime tool to get the current date and time",
+                "daisi-info-datetime",
                 emptySkills);
         }
 
@@ -501,9 +460,9 @@ namespace Daisi.Tools.Tests.Skills
 
             Assert.NotEmpty(skills);
 
-            await AssertSkilledToolSelectedOneOf(
-                "Verify whether the Great Wall of China is visible from space",
-                ["daisi-integration-wikipedia", "daisi-info-web-search"],
+            await AssertSkilledToolSelected(
+                "Use the Wikipedia search tool to verify whether the Great Wall of China is visible from space",
+                "daisi-integration-wikipedia",
                 skills);
         }
 

@@ -2,7 +2,6 @@ using Daisi.Protos.V1;
 using Daisi.SDK.Models;
 using Daisi.SDK.Models.Tools;
 using Daisi.Tools.Tests.Helpers;
-using Daisi.Tools.Tests.Information;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Text.Json;
@@ -20,10 +19,10 @@ namespace Daisi.Tools.Tests.Integration
     [Collection("InferenceTests")]
     public class ToolExecutionInferenceTests : IDisposable
     {
-        private readonly WebSearchInferenceFixture _fixture;
+        private readonly ToolInferenceFixture _fixture;
         private readonly IServiceProvider? _originalServices;
 
-        public ToolExecutionInferenceTests(WebSearchInferenceFixture fixture)
+        public ToolExecutionInferenceTests(ToolInferenceFixture fixture)
         {
             _fixture = fixture;
             _originalServices = DaisiStaticSettings.Services;
@@ -197,22 +196,6 @@ namespace Daisi.Tools.Tests.Integration
             {
                 Directory.Delete(tempDir, true);
             }
-        }
-
-        [Fact]
-        public async Task Execute_WebSearch_ReturnsMockUrls()
-        {
-            var googleHtml = ToolTestHelpers.CreateMockGoogleHtml(
-                "https://example.com/ai-news-1",
-                "https://example.com/ai-news-2");
-            var handler = new MockHttpMessageHandler(googleHtml, HttpStatusCode.OK);
-
-            var content = await SelectAndExecute(
-                "Search the web for AI news",
-                "daisi-info-web-search",
-                handler);
-
-            Assert.Contains("example.com", content);
         }
 
         [Fact]

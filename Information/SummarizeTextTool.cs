@@ -13,8 +13,10 @@ namespace Daisi.Tools.Information
         public override string Name => "Daisi Summarize Text";
 
         public override string UseInstructions =>
-            "Use this tool to summarize plain text content. " +
-            "Provide the text to summarize and optionally a maximum length constraint.";
+            "Use this tool to summarize plain text (NOT HTML). " +
+            "Takes a plain text paragraph, article, or passage and produces a concise summary. " +
+            "Keywords: summarize text, shorten, condense, brief summary, tldr. " +
+            "Do NOT use for HTML content — use daisi-web-html-summarize for HTML.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){

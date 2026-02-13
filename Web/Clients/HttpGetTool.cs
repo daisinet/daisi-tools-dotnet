@@ -14,40 +14,22 @@ namespace Daisi.Tools.Web.Clients
     public class HttpGetTool : DaisiToolBase
     {
         const string P_URL = "url";
-       // const string P_METHOD = "method";
-       // const string P_CONTENT = "content";
-       // const string P_MEDIATYPE = "media-type";
         public override string Id => "daisi-web-clients-http-get";
         public override string Name => "Daisi Http Get";
-        public override string UseInstructions => "Use this tool ONLY when you already have a specific URL and need to fetch its content. " +
-            "This sends a HTTP GET request to a known URL and returns the raw response (HTML or JSON). " +
-            "Do NOT use this for searching — use the web search tool instead if you need to find information.";
+        public override string UseInstructions =>
+            "Use this tool when a specific URL is provided and you need to fetch, read, or retrieve its content. " +
+            "Sends HTTP GET to the URL and returns the response (HTML, JSON, or text). " +
+            "Keywords: fetch url, get url, http get, read url, visit url, open url, download page. " +
+            "ALWAYS use this FIRST when a URL needs to be summarized — fetch the content before summarizing.";
 
         public override ToolParameter[] Parameters => new[]{
             new ToolParameter() { Name = P_URL, Description = "This is the fully qualified URL to send the request, including the protocol. This MUST have at least one value sent.", IsRequired = true },
-            //new ToolParameter() { Name = P_METHOD, Description = "The HTTP method to use for the request. Options: \"GET\",\"POST\",\"PUT\",\"PATCH\". Default is GET.", IsRequired = false },
-            //new ToolParameter() { Name = P_CONTENT, Description = "The content to POST, PUT, or PATCH. Omit if METHOD  is \"GET\".", IsRequired = false },
-            //new ToolParameter() { Name = P_MEDIATYPE, Description = "The media type for the Content sent to the URL. Default is \"application/json\". Omit if METHOD is \"GET\".", IsRequired = false }
         };
 
         public override ToolExecutionContext GetExecutionContext(IToolContext toolContext, CancellationToken cancellationToken, params ToolParameterBase[] parameters)
         {
-            // var pMethod = parameters.GetParameter(P_METHOD, false);
-            // var method = pMethod?.Values.FirstOrDefault() ?? "get";
-            // method = method.ToLower();
-
             var pUrl = parameters.GetParameter(P_URL);
             var url = pUrl.Value;
-
-            //string? outgoingContent = null;
-            //string? mediaType = null;
-            //if (method != "get")
-            //{
-            //    var pContent = parameters.GetParameter(P_CONTENT);
-            //    outgoingContent = pContent.Values.FirstOrDefault();
-            //     var pMediaType = parameters.GetParameter(P_MEDIATYPE, false);
-            //     mediaType = pMediaType?.Values.FirstOrDefault() ?? "application/json";
-            // }
 
             var executionMessage = string.Format("HTTP GET: {0}", url);
 

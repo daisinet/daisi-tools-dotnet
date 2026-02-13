@@ -15,8 +15,10 @@ namespace Daisi.Tools.Strings
         public override string Name => "Daisi Regex Matching Tool";
 
         public override string UseInstructions =>
-            "Use this tool when the user wants to find, extract, or match text patterns using regular expressions (regex). " +
-            "Provide the source text and the regex pattern. Returns a JSON array of matched strings.";
+            "Use this tool ONLY for regex (regular expression) pattern matching and text extraction. " +
+            "Applies a regex pattern to source text and returns all matching strings as a JSON array. " +
+            "Keywords: regex, regular expression, pattern, match, extract, find pattern. " +
+            "Do NOT use for encoding, decoding, or formatting.";
 
         public override ToolParameter[] Parameters => [
             new ToolParameter(){ Name = "input", Description="This is the source text from which matches will be searched and extracted.", IsRequired = true },
@@ -44,6 +46,7 @@ namespace Daisi.Tools.Strings
             toolResult.Output = JsonSerializer.Serialize(matches.Select(m => m.Value).ToArray());
             toolResult.OutputMessage = "Extracted Values in JSON Format";
             toolResult.OutputFormat = Protos.V1.InferenceOutputFormats.Json;
+            toolResult.Success = true;
 
             return toolResult;
         }

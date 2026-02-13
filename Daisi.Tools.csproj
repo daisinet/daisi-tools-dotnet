@@ -30,6 +30,7 @@
   <ItemGroup>
     <PackageReference Include="MathEvaluator" Version="3.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0-preview.1.25080.5" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.52.0" />
   </ItemGroup>
 
   <ItemGroup>

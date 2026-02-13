@@ -4,7 +4,7 @@ using Daisi.SDK.Models.Tools;
 
 namespace Daisi.Tools.Coding
 {
-    public class GenerateCodeTool : DaisiToolBase
+    public class GenerateCodeTool : InferenceToolBase
     {
         private const string P_DESCRIPTION = "description";
         private const string P_LANGUAGE = "language";
@@ -44,23 +44,14 @@ namespace Daisi.Tools.Coding
                 ? string.Empty
                 : $"\nAdditional context: {context}\n";
 
-            var infRequest = SendInferenceRequest.CreateDefault();
-            infRequest.Text = $"Generate {language} code for the following:\n\n" +
+            var prompt = $"Generate {language} code for the following:\n\n" +
                 $"Description: {description}\n" +
                 contextClause +
                 $"\nProvide clean, well-structured {language} code. " +
                 "Include brief comments explaining key parts. " +
                 $"Format the output as a markdown code block with the language tag ```{language.ToLowerInvariant()}\n";
 
-            var infResult = await toolContext.InferAsync(infRequest);
-
-            return new ToolResult
-            {
-                Output = infResult.Content,
-                OutputMessage = $"Generated {language} code",
-                OutputFormat = InferenceOutputFormats.Markdown,
-                Success = true
-            };
+            return await RunInference(toolContext, prompt, $"Generated {language} code");
         }
     }
 }

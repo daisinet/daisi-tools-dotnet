@@ -1,13 +1,11 @@
 using Daisi.Protos.V1;
-using Daisi.SDK.Clients.V1.Orc;
 using Daisi.SDK.Interfaces.Tools;
 using Daisi.SDK.Models.Tools;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 namespace Daisi.Tools.Drive
 {
-    public class FileSearchTool : DaisiToolBase
+    public class FileSearchTool : DriveToolBase
     {
         private const string P_QUERY = "query";
         private const string P_TOP_K = "top-k";
@@ -61,17 +59,9 @@ namespace Daisi.Tools.Drive
         {
             try
             {
-                var driveClientFactory = toolContext.Services.GetService<DriveClientFactory>();
-                if (driveClientFactory is null)
-                {
-                    return new ToolResult()
-                    {
-                        Success = false,
-                        ErrorMessage = "Drive client is not available."
-                    };
-                }
+                var client = GetDriveClient(toolContext, out var error);
+                if (client is null) return error!;
 
-                var client = driveClientFactory.Create();
                 var request = new VectorSearchRequest
                 {
                     Query = query,

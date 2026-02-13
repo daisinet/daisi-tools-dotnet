@@ -4,7 +4,7 @@ using Daisi.SDK.Models.Tools;
 
 namespace Daisi.Tools.Coding
 {
-    public class AnalyzeCodeTool : DaisiToolBase
+    public class AnalyzeCodeTool : InferenceToolBase
     {
         private const string P_CODE = "code";
         private const string P_LANGUAGE = "language";
@@ -57,17 +57,13 @@ namespace Daisi.Tools.Coding
 
         private async Task<ToolResult> AnalyzeCode(IToolContext toolContext, string code, string? language, string focus)
         {
-            var result = new ToolResult();
-            result.OutputFormat = InferenceOutputFormats.Markdown;
-
             var languageClause = string.IsNullOrWhiteSpace(language)
                 ? "Auto-detect the programming language."
                 : $"The code is written in {language}.";
 
             var focusInstructions = GetFocusInstructions(focus);
 
-            var infRequest = SendInferenceRequest.CreateDefault();
-            infRequest.Text = $"Code:\n```\n{code}\n```\n\n" +
+            var prompt = $"Code:\n```\n{code}\n```\n\n" +
                 $"{languageClause}\n\n" +
                 $"Analyze the code with the following focus: {focusInstructions}\n\n" +
                 "Format your response as markdown with these sections:\n" +
@@ -79,13 +75,7 @@ namespace Daisi.Tools.Coding
                 "- **Recommendation**: How to fix it\n\n" +
                 "If no issues are found, state that the code looks clean for the given focus area.";
 
-            var infResult = await toolContext.InferAsync(infRequest);
-
-            result.Output = infResult.Content;
-            result.OutputMessage = $"Code analysis complete (focus: {focus})";
-            result.Success = true;
-
-            return result;
+            return await RunInference(toolContext, prompt, $"Code analysis complete (focus: {focus})");
         }
 
         internal static string GetFocusInstructions(string focus)

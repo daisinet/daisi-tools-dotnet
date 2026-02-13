@@ -1,14 +1,12 @@
 using Daisi.Protos.V1;
-using Daisi.SDK.Clients.V1.Orc;
 using Daisi.SDK.Interfaces.Tools;
 using Daisi.SDK.Models.Tools;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using System.Text.Json;
 
 namespace Daisi.Tools.Drive
 {
-    public class FileSaveTool : DaisiToolBase
+    public class FileSaveTool : DriveToolBase
     {
         private const string P_FILE_NAME = "file-name";
         private const string P_CONTENT = "content";
@@ -83,17 +81,9 @@ namespace Daisi.Tools.Drive
         {
             try
             {
-                var driveClientFactory = toolContext.Services.GetService<DriveClientFactory>();
-                if (driveClientFactory is null)
-                {
-                    return new ToolResult()
-                    {
-                        Success = false,
-                        ErrorMessage = "Drive client is not available."
-                    };
-                }
+                var client = GetDriveClient(toolContext, out var error);
+                if (client is null) return error!;
 
-                var client = driveClientFactory.Create();
                 var contentBytes = Encoding.UTF8.GetBytes(content);
                 using var stream = new MemoryStream(contentBytes);
 

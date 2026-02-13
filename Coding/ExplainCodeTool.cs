@@ -4,7 +4,7 @@ using Daisi.SDK.Models.Tools;
 
 namespace Daisi.Tools.Coding
 {
-    public class ExplainCodeTool : DaisiToolBase
+    public class ExplainCodeTool : InferenceToolBase
     {
         private const string P_CODE = "code";
         private const string P_LANGUAGE = "language";
@@ -46,8 +46,7 @@ namespace Daisi.Tools.Coding
 
             var levelInstructions = GetLevelInstructions(level);
 
-            var infRequest = SendInferenceRequest.CreateDefault();
-            infRequest.Text = $"Code:\n```\n{code}\n```\n\n" +
+            var prompt = $"Code:\n```\n{code}\n```\n\n" +
                 $"{languageClause}\n\n" +
                 $"Explain this code {levelInstructions}\n\n" +
                 "Format your response as markdown with:\n" +
@@ -55,15 +54,7 @@ namespace Daisi.Tools.Coding
                 "## Step-by-Step Explanation\nWalk through the code explaining each important part.\n\n" +
                 "## Key Concepts\nList any important programming concepts used.";
 
-            var infResult = await toolContext.InferAsync(infRequest);
-
-            return new ToolResult
-            {
-                Output = infResult.Content,
-                OutputMessage = $"Code explanation ({level})",
-                OutputFormat = InferenceOutputFormats.Markdown,
-                Success = true
-            };
+            return await RunInference(toolContext, prompt, $"Code explanation ({level})");
         }
 
         internal static string GetLevelInstructions(string level)

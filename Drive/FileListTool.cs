@@ -1,13 +1,11 @@
 using Daisi.Protos.V1;
-using Daisi.SDK.Clients.V1.Orc;
 using Daisi.SDK.Interfaces.Tools;
 using Daisi.SDK.Models.Tools;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 namespace Daisi.Tools.Drive
 {
-    public class FileListTool : DaisiToolBase
+    public class FileListTool : DriveToolBase
     {
         private const string P_REPOSITORY_ID = "repository-id";
         private const string P_FOLDER_ID = "folder-id";
@@ -51,17 +49,9 @@ namespace Daisi.Tools.Drive
         {
             try
             {
-                var driveClientFactory = toolContext.Services.GetService<DriveClientFactory>();
-                if (driveClientFactory is null)
-                {
-                    return new ToolResult()
-                    {
-                        Success = false,
-                        ErrorMessage = "Drive client is not available."
-                    };
-                }
+                var client = GetDriveClient(toolContext, out var error);
+                if (client is null) return error!;
 
-                var client = driveClientFactory.Create();
                 var response = await client.ListFilesAsync(repositoryId, folderId, cancellationToken: cancellation);
 
                 var files = response.Files.Select(f => new

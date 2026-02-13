@@ -1,13 +1,11 @@
 using Daisi.Protos.V1;
-using Daisi.SDK.Clients.V1.Orc;
 using Daisi.SDK.Interfaces.Tools;
 using Daisi.SDK.Models.Tools;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 
 namespace Daisi.Tools.Drive
 {
-    public class FileReadTool : DaisiToolBase
+    public class FileReadTool : DriveToolBase
     {
         private const string P_FILE_ID = "file-id";
         private const int MaxContentLength = 50_000;
@@ -45,17 +43,9 @@ namespace Daisi.Tools.Drive
         {
             try
             {
-                var driveClientFactory = toolContext.Services.GetService<DriveClientFactory>();
-                if (driveClientFactory is null)
-                {
-                    return new ToolResult()
-                    {
-                        Success = false,
-                        ErrorMessage = "Drive client is not available."
-                    };
-                }
+                var client = GetDriveClient(toolContext, out var error);
+                if (client is null) return error!;
 
-                var client = driveClientFactory.Create();
                 var data = await client.DownloadFileAsync(fileId, cancellation);
 
                 var content = Encoding.UTF8.GetString(data);

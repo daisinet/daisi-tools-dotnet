@@ -64,22 +64,22 @@ namespace Daisi.Tools.Tests.Skills
         }
 
         [Fact]
-        public async Task FactCheck_WikipediaSearch()
+        public async Task FactCheck_GrokipediaSearch()
         {
-            // Wikipedia search
-            var wikiResponse = ToolTestHelpers.CreateMockWikipediaResponse(
+            // Grokipedia search
+            var grokipediaResponse = ToolTestHelpers.CreateMockGrokipediaResponse(
                 ("Speed of light", "The speed of light in vacuum is 299,792,458 metres per second"));
-            var wikiHandler = new MockHttpMessageHandler(wikiResponse, HttpStatusCode.OK);
-            var wikiContext = ToolTestHelpers.BuildContextWithMockHttp(wikiHandler);
+            var grokipediaHandler = new MockHttpMessageHandler(grokipediaResponse, HttpStatusCode.OK);
+            var grokipediaContext = ToolTestHelpers.BuildContextWithMockHttp(grokipediaHandler);
 
-            var wikiTool = new WikipediaSearchTool();
-            var wikiParams = new ToolParameterBase[]
+            var grokipediaTool = new GrokipediaSearchTool();
+            var grokipediaParams = new ToolParameterBase[]
             {
                 new() { Name = "query", Value = "speed of light", IsRequired = true }
             };
-            var wikiExec = wikiTool.GetExecutionContext(wikiContext, CancellationToken.None, wikiParams);
-            var wikiResult = await wikiExec.ExecutionTask;
-            Assert.True(wikiResult.Success);
+            var grokipediaExec = grokipediaTool.GetExecutionContext(grokipediaContext, CancellationToken.None, grokipediaParams);
+            var grokipediaResult = await grokipediaExec.ExecutionTask;
+            Assert.True(grokipediaResult.Success);
         }
     }
 }

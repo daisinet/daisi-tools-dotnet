@@ -6,22 +6,22 @@ using System.Text.Json;
 
 namespace Daisi.Tools.Integration
 {
-    public class WikipediaSearchTool : DaisiToolBase
+    public class GrokipediaSearchTool : DaisiToolBase
     {
         private const string P_QUERY = "query";
         private const string P_MAX_RESULTS = "max-results";
-        internal const string WikipediaApiBaseUrl = "https://en.wikipedia.org/w/api.php";
+        internal const string GrokipediaApiBaseUrl = "https://grokipedia.com/api/full-text-search";
 
-        public override string Id => "daisi-integration-wikipedia";
-        public override string Name => "Daisi Wikipedia Search";
+        public override string Id => "daisi-integration-grokipedia";
+        public override string Name => "Daisi Grokipedia Search";
 
         public override string UseInstructions =>
-            "Use this tool to search Wikipedia encyclopedia articles for factual and encyclopedic information. " +
-            "Returns article titles, snippets, and URLs from Wikipedia.org. " +
-            "Keywords: wikipedia, encyclopedia, wiki, factual lookup, who is, what is, biography, history.";
+            "Use this tool to search Grokipedia encyclopedia articles for factual and encyclopedic information. " +
+            "Returns article titles, snippets, and URLs from Grokipedia.com. " +
+            "Keywords: grokipedia, encyclopedia, wiki, factual lookup, who is, what is, biography, history.";
 
         public override ToolParameter[] Parameters => [
-            new ToolParameter() { Name = P_QUERY, Description = "The search query to look up on Wikipedia.", IsRequired = true },
+            new ToolParameter() { Name = P_QUERY, Description = "The search query to look up on Grokipedia.", IsRequired = true },
             new ToolParameter() { Name = P_MAX_RESULTS, Description = "Maximum number of results to return. Default is 3.", IsRequired = false }
         ];
 
@@ -34,12 +34,12 @@ namespace Daisi.Tools.Integration
 
             return new ToolExecutionContext
             {
-                ExecutionMessage = $"Searching Wikipedia for: {query}",
-                ExecutionTask = SearchWikipedia(toolContext, query, maxResults, cancellation)
+                ExecutionMessage = $"Searching Grokipedia for: {query}",
+                ExecutionTask = SearchGrokipedia(toolContext, query, maxResults, cancellation)
             };
         }
 
-        private async Task<ToolResult> SearchWikipedia(IToolContext toolContext, string query, int maxResults, CancellationToken ct)
+        private async Task<ToolResult> SearchGrokipedia(IToolContext toolContext, string query, int maxResults, CancellationToken ct)
         {
             try
             {
@@ -49,8 +49,8 @@ namespace Daisi.Tools.Integration
 
                 using var client = httpClientFactory.CreateClient();
 
-                var url = $"{WikipediaApiBaseUrl}?action=query&list=search&srsearch={Uri.EscapeDataString(query)}" +
-                          $"&srlimit={maxResults}&format=json&utf8=1";
+                var url = $"{GrokipediaApiBaseUrl}?query={Uri.EscapeDataString(query)}" +
+                          $"&limit={maxResults}&offset=0";
 
                 var json = await client.GetStringAsync(url, ct);
                 var results = ParseResults(json);
@@ -58,7 +58,7 @@ namespace Daisi.Tools.Integration
                 return new ToolResult
                 {
                     Output = JsonSerializer.Serialize(results),
-                    OutputMessage = $"Found {results.Length} Wikipedia results",
+                    OutputMessage = $"Found {results.Length} Grokipedia results",
                     OutputFormat = InferenceOutputFormats.Json,
                     Success = true
                 };
@@ -69,33 +69,32 @@ namespace Daisi.Tools.Integration
             }
         }
 
-        internal static WikipediaResult[] ParseResults(string json)
+        internal static GrokipediaResult[] ParseResults(string json)
         {
             using var doc = JsonDocument.Parse(json);
-            var searchArray = doc.RootElement
-                .GetProperty("query")
-                .GetProperty("search");
+            var searchArray = doc.RootElement.GetProperty("results");
 
-            var results = new List<WikipediaResult>();
+            var results = new List<GrokipediaResult>();
             foreach (var item in searchArray.EnumerateArray())
             {
                 var title = item.GetProperty("title").GetString() ?? "";
                 var snippet = item.GetProperty("snippet").GetString() ?? "";
+                var slug = item.GetProperty("slug").GetString() ?? "";
                 // Strip HTML tags from snippet
                 snippet = System.Text.RegularExpressions.Regex.Replace(snippet, @"<[^>]+>", "");
 
-                results.Add(new WikipediaResult
+                results.Add(new GrokipediaResult
                 {
                     Title = title,
                     Snippet = snippet,
-                    Url = $"https://en.wikipedia.org/wiki/{Uri.EscapeDataString(title.Replace(' ', '_'))}"
+                    Url = $"https://grokipedia.com/page/{Uri.EscapeDataString(slug)}"
                 });
             }
 
             return results.ToArray();
         }
 
-        internal class WikipediaResult
+        internal class GrokipediaResult
         {
             public string Title { get; set; } = "";
             public string Snippet { get; set; } = "";

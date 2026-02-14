@@ -236,11 +236,11 @@ namespace Daisi.Tools.Tests.Information
         }
 
         [Fact]
-        public async Task LlmSelects_Wikipedia_ForFactualQuery()
+        public async Task LlmSelects_Grokipedia_ForFactualQuery()
         {
             await AssertToolSelected(
-                "Use the Wikipedia search tool to search for information about quantum computing",
-                "daisi-integration-wikipedia",
+                "Use the Grokipedia search tool to search for information about quantum computing",
+                "daisi-integration-grokipedia",
                 "query");
         }
 

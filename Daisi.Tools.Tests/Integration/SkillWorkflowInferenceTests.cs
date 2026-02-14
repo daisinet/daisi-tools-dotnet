@@ -102,8 +102,8 @@ namespace Daisi.Tools.Tests.Integration
                 }
             }
 
-            var chatSession = await _fixture.LocalModel.CreateInteractiveChatSessionAsync(
-                skillContext.ToString());
+            var chatSession = await _fixture.TextBackend.CreateChatSessionAsync(
+                _fixture.LocalModel.ModelHandle!, skillContext.ToString());
 
             return await _fixture.ToolService.CreateToolSessionFromUserInput(
                 userMessage, _fixture.LocalModel, chatSession);

@@ -213,16 +213,16 @@ namespace Daisi.Tools.Tests.Integration
         }
 
         [Fact]
-        public async Task Execute_Wikipedia_ReturnsMockResults()
+        public async Task Execute_Grokipedia_ReturnsMockResults()
         {
-            var wikiResponse = ToolTestHelpers.CreateMockWikipediaResponse(
+            var grokipediaResponse = ToolTestHelpers.CreateMockGrokipediaResponse(
                 ("Quantum computing", "A type of computation using quantum mechanics"),
                 ("Quantum supremacy", "Advantage over classical computers"));
-            var handler = new MockHttpMessageHandler(wikiResponse, HttpStatusCode.OK);
+            var handler = new MockHttpMessageHandler(grokipediaResponse, HttpStatusCode.OK);
 
             var content = await SelectAndExecute(
-                "Use the Wikipedia search tool to search for quantum computing",
-                "daisi-integration-wikipedia",
+                "Use the Grokipedia search tool to search for quantum computing",
+                "daisi-integration-grokipedia",
                 handler);
 
             Assert.Contains("Quantum computing", content);

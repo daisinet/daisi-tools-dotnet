@@ -128,11 +128,11 @@ namespace Daisi.Tools.Tests.Integration
         }
 
         [Fact]
-        public async Task Natural_WhoIs_SelectsWikipedia()
+        public async Task Natural_WhoIs_SelectsGrokipedia()
         {
             await AssertToolSelected(
                 "Who was Albert Einstein?",
-                "daisi-integration-wikipedia");
+                "daisi-integration-grokipedia");
         }
 
         [Fact]

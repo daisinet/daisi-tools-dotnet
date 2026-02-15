@@ -2,6 +2,9 @@ using Daisi.Host.Core.Models;
 using Daisi.Host.Core.Services;
 using Daisi.Host.Core.Services.Interfaces;
 using Daisi.Host.Core.Services.Models;
+using Daisi.Inference.Interfaces;
+using Daisi.Inference.LlamaSharp;
+using Daisi.Inference.Models;
 using Daisi.Protos.V1;
 using Daisi.SDK.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,10 +22,11 @@ namespace Daisi.Tools.Tests.Helpers
     public class ToolInferenceFixture : IAsyncLifetime
     {
         private const string ModelFolderPath = @"C:\ggufs";
-        private const string ModelFileName = "gemma-3-4b-it-Q4_K_M.gguf";
+        private const string ModelFileName = "gemma-3-4b-it-UD-Q4_K_XL.gguf";
 
         public LocalModel LocalModel { get; private set; } = null!;
         public ToolService ToolService { get; private set; } = null!;
+        public ITextInferenceBackend TextBackend { get; private set; } = null!;
 
         public async Task InitializeAsync()
         {
@@ -37,13 +41,19 @@ namespace Daisi.Tools.Tests.Helpers
                 IsDefault = true
             };
 
+            TextBackend = new LlamaSharpTextBackend();
+            await TextBackend.ConfigureAsync(new BackendConfiguration
+            {
+                ShowLogs = false,
+                AutoFallback = true,
+                LogCallback = (_, _) => { }
+            });
+
             LocalModel = new LocalModel(aiModel, NullLogger.Instance, settingsService);
-            LocalModel.Load();
+            LocalModel.Load(TextBackend);
 
-            ToolService = new ToolService(settingsService, logger);
+            ToolService = new ToolService(settingsService, TextBackend, logger);
             ToolService.LoadTools();
-
-            await Task.CompletedTask;
         }
 
         public async Task DisposeAsync()
@@ -57,7 +67,7 @@ namespace Daisi.Tools.Tests.Helpers
             var serviceProvider = BuildServices(handler);
             DaisiStaticSettings.Services = serviceProvider;
 
-            var chatSession = await LocalModel.CreateInteractiveChatSessionAsync();
+            var chatSession = await TextBackend.CreateChatSessionAsync(LocalModel.ModelHandle!);
             return await ToolService.CreateToolSessionFromUserInput(prompt, LocalModel, chatSession);
         }
 
@@ -85,7 +95,7 @@ namespace Daisi.Tools.Tests.Helpers
                     Model = new ModelSettings
                     {
                         ModelFolderPath = modelFolderPath,
-                        LLama = new LLamaSettings
+                        Backend = new BackendSettings
                         {
                             ContextSize = 4096,
                             GpuLayerCount = -1,

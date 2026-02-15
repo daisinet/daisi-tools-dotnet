@@ -22,7 +22,7 @@ namespace Daisi.Tools.Tests.Helpers
     public class ToolInferenceFixture : IAsyncLifetime
     {
         private const string ModelFolderPath = @"C:\ggufs";
-        private const string ModelFileName = "gemma-3-4b-it-Q4_K_M.gguf";
+        private const string ModelFileName = "gemma-3-4b-it-UD-Q4_K_XL.gguf";
 
         public LocalModel LocalModel { get; private set; } = null!;
         public ToolService ToolService { get; private set; } = null!;

@@ -124,8 +124,8 @@ namespace Daisi.Tools.Tests.Skills
             }
 
             // Create a chat session with skill context as system instructions
-            var chatSession = await _fixture.LocalModel.CreateInteractiveChatSessionAsync(
-                skillContext.ToString());
+            var chatSession = await _fixture.TextBackend.CreateChatSessionAsync(
+                _fixture.LocalModel.ModelHandle!, skillContext.ToString());
 
             return await _fixture.ToolService.CreateToolSessionFromUserInput(
                 userMessage, _fixture.LocalModel, chatSession);
@@ -276,12 +276,12 @@ namespace Daisi.Tools.Tests.Skills
         }
 
         [Fact]
-        public async Task Skilled_WikipediaLookup_SelectsWikipedia()
+        public async Task Skilled_GrokipediaLookup_SelectsGrokipedia()
         {
-            // The fact-check skill instructs: use Wikipedia Search for factual queries
+            // The fact-check skill instructs: use Grokipedia Search for factual queries
             await AssertSkilledToolSelected(
-                "Use the Wikipedia search tool to look up the speed of light",
-                "daisi-integration-wikipedia");
+                "Use the Grokipedia search tool to look up the speed of light",
+                "daisi-integration-grokipedia");
         }
 
         [Fact]
@@ -451,9 +451,9 @@ namespace Daisi.Tools.Tests.Skills
         }
 
         [Fact]
-        public async Task Skilled_WithFactCheckSkill_SelectsSearchOrWikipedia()
+        public async Task Skilled_WithFactCheckSkill_SelectsSearchOrGrokipedia()
         {
-            // With the fact-check skill, factual queries should pick search or wikipedia
+            // With the fact-check skill, factual queries should pick search or grokipedia
             var skills = LoadTestSkills()
                 .Where(s => s.Name == "fact-check")
                 .ToList();
@@ -461,8 +461,8 @@ namespace Daisi.Tools.Tests.Skills
             Assert.NotEmpty(skills);
 
             await AssertSkilledToolSelected(
-                "Use the Wikipedia search tool to verify whether the Great Wall of China is visible from space",
-                "daisi-integration-wikipedia",
+                "Use the Grokipedia search tool to verify whether the Great Wall of China is visible from space",
+                "daisi-integration-grokipedia",
                 skills);
         }
 

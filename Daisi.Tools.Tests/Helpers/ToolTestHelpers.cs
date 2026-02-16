@@ -97,12 +97,15 @@ namespace Daisi.Tools.Tests.Helpers
 </body></html>";
         }
 
-        public static string CreateMockWikipediaResponse(params (string Title, string Snippet)[] results)
+        public static string CreateMockGrokipediaResponse(params (string Title, string Snippet)[] results)
         {
             var searchItems = string.Join(",", results.Select(r =>
-                $@"{{""title"":""{EscapeJson(r.Title)}"",""snippet"":""{EscapeJson(r.Snippet)}"",""pageid"":1}}"));
+            {
+                var slug = r.Title.Replace(' ', '_');
+                return $@"{{""title"":""{EscapeJson(r.Title)}"",""snippet"":""{EscapeJson(r.Snippet)}"",""slug"":""{EscapeJson(slug)}"",""relevanceScore"":100.0,""viewCount"":""0""}}";
+            }));
 
-            return $@"{{""query"":{{""search"":[{searchItems}]}}}}";
+            return $@"{{""results"":[{searchItems}],""totalCount"":{results.Length}}}";
         }
 
         private static string EscapeJson(string s) =>

@@ -2,54 +2,55 @@ using Daisi.Protos.V1;
 using Daisi.SDK.Models.Tools;
 using Daisi.Tools.Integration;
 using Daisi.Tools.Tests.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Text.Json;
 
 namespace Daisi.Tools.Tests.Integration
 {
-    public class WikipediaSearchToolTests
+    public class GrokipediaSearchToolTests
     {
         [Fact]
         public void Id_ReturnsExpectedValue()
         {
-            var tool = new WikipediaSearchTool();
-            Assert.Equal("daisi-integration-wikipedia", tool.Id);
+            var tool = new GrokipediaSearchTool();
+            Assert.Equal("daisi-integration-grokipedia", tool.Id);
         }
 
         [Fact]
         public void Parameters_QueryIsRequired()
         {
-            var tool = new WikipediaSearchTool();
+            var tool = new GrokipediaSearchTool();
             Assert.True(tool.Parameters.First(p => p.Name == "query").IsRequired);
         }
 
         [Fact]
         public void Parameters_MaxResultsIsOptional()
         {
-            var tool = new WikipediaSearchTool();
+            var tool = new GrokipediaSearchTool();
             Assert.False(tool.Parameters.First(p => p.Name == "max-results").IsRequired);
         }
 
         [Fact]
         public void ParseResults_ExtractsTitleAndSnippet()
         {
-            var json = ToolTestHelpers.CreateMockWikipediaResponse(
+            var json = ToolTestHelpers.CreateMockGrokipediaResponse(
                 ("Albert Einstein", "German-born theoretical physicist"),
                 ("Theory of Relativity", "Two interrelated physics theories"));
 
-            var results = WikipediaSearchTool.ParseResults(json);
+            var results = GrokipediaSearchTool.ParseResults(json);
 
             Assert.Equal(2, results.Length);
             Assert.Equal("Albert Einstein", results[0].Title);
             Assert.Contains("theoretical physicist", results[0].Snippet);
-            Assert.Contains("wikipedia.org", results[0].Url);
+            Assert.Contains("grokipedia.com", results[0].Url);
         }
 
         [Fact]
         public void ParseResults_StripsHtmlFromSnippets()
         {
-            var json = @"{""query"":{""search"":[{""title"":""Test"",""snippet"":""<span class='highlight'>Bold</span> text"",""pageid"":1}]}}";
-            var results = WikipediaSearchTool.ParseResults(json);
+            var json = @"{""results"":[{""title"":""Test"",""snippet"":""<span class='highlight'>Bold</span> text"",""slug"":""Test"",""relevanceScore"":100.0,""viewCount"":""0""}],""totalCount"":1}";
+            var results = GrokipediaSearchTool.ParseResults(json);
 
             Assert.DoesNotContain("<span", results[0].Snippet);
             Assert.Contains("Bold", results[0].Snippet);
@@ -58,7 +59,7 @@ namespace Daisi.Tools.Tests.Integration
         [Fact]
         public async Task Execute_MissingHttpClientFactory_ReturnsError()
         {
-            var tool = new WikipediaSearchTool();
+            var tool = new GrokipediaSearchTool();
             var context = new MockToolContext();
 
             var parameters = new ToolParameterBase[]
@@ -76,13 +77,13 @@ namespace Daisi.Tools.Tests.Integration
         [Fact]
         public async Task Execute_WithMockHttp_ReturnsResults()
         {
-            var wikiResponse = ToolTestHelpers.CreateMockWikipediaResponse(
+            var grokipediaResponse = ToolTestHelpers.CreateMockGrokipediaResponse(
                 ("Test Article", "This is a test article about testing"));
 
-            var handler = new MockHttpMessageHandler(wikiResponse, HttpStatusCode.OK);
+            var handler = new MockHttpMessageHandler(grokipediaResponse, HttpStatusCode.OK);
             var context = ToolTestHelpers.BuildContextWithMockHttp(handler);
 
-            var tool = new WikipediaSearchTool();
+            var tool = new GrokipediaSearchTool();
             var parameters = new ToolParameterBase[]
             {
                 new() { Name = "query", Value = "test", IsRequired = true }
@@ -101,7 +102,7 @@ namespace Daisi.Tools.Tests.Integration
             var handler = new ThrowingHttpMessageHandler(new HttpRequestException("Connection refused"));
             var context = ToolTestHelpers.BuildContextWithMockHttp(handler);
 
-            var tool = new WikipediaSearchTool();
+            var tool = new GrokipediaSearchTool();
             var parameters = new ToolParameterBase[]
             {
                 new() { Name = "query", Value = "test", IsRequired = true }
@@ -117,11 +118,11 @@ namespace Daisi.Tools.Tests.Integration
         [Fact]
         public async Task Execute_UrlContainsQuery()
         {
-            var wikiResponse = ToolTestHelpers.CreateMockWikipediaResponse(("Result", "Snippet"));
-            var handler = new MockHttpMessageHandler(wikiResponse, HttpStatusCode.OK);
+            var grokipediaResponse = ToolTestHelpers.CreateMockGrokipediaResponse(("Result", "Snippet"));
+            var handler = new MockHttpMessageHandler(grokipediaResponse, HttpStatusCode.OK);
             var context = ToolTestHelpers.BuildContextWithMockHttp(handler);
 
-            var tool = new WikipediaSearchTool();
+            var tool = new GrokipediaSearchTool();
             var parameters = new ToolParameterBase[]
             {
                 new() { Name = "query", Value = "quantum physics", IsRequired = true }
@@ -131,7 +132,33 @@ namespace Daisi.Tools.Tests.Integration
             await execContext.ExecutionTask;
 
             Assert.NotNull(handler.LastRequest);
-            Assert.Contains("srsearch=quantum", handler.LastRequest!.RequestUri!.ToString());
+            Assert.Contains("query=quantum", handler.LastRequest!.RequestUri!.ToString());
+        }
+
+        [Fact]
+        public async Task LiveSearch_ReturnsResultsFromGrokipedia()
+        {
+            // Integration test: hits the real Grokipedia API
+            var services = new ServiceCollection();
+            services.AddHttpClient(string.Empty);
+            var provider = services.BuildServiceProvider();
+            var context = new MockToolContext(services: provider);
+
+            var tool = new GrokipediaSearchTool();
+            var parameters = new ToolParameterBase[]
+            {
+                new() { Name = "query", Value = "Albert Einstein", IsRequired = true },
+                new() { Name = "max-results", Value = "3", IsRequired = false }
+            };
+
+            var execContext = tool.GetExecutionContext(context, CancellationToken.None, parameters);
+            var result = await execContext.ExecutionTask;
+
+            Assert.True(result.Success, $"Expected success but got error: {result.ErrorMessage}");
+            Assert.Equal(InferenceOutputFormats.Json, result.OutputFormat);
+            Assert.Contains("Einstein", result.Output);
+            Assert.Contains("grokipedia.com", result.Output);
+            Assert.Contains("Found", result.OutputMessage);
         }
     }
 }

@@ -1,3 +1,5 @@
+namespace SecureToolProvider.Common.Models;
+
 /// <summary>
 /// Request body for the /install endpoint (called by ORC on purchase).
 /// </summary>
@@ -5,7 +7,6 @@ public class InstallRequest
 {
     public string InstallId { get; set; } = string.Empty;
     public string ToolId { get; set; } = string.Empty;
-    public string? BundleInstallId { get; set; }
 }
 
 /// <summary>
@@ -84,20 +85,30 @@ public class ExecuteResponse
 }
 
 /// <summary>
-/// Request body for the POST /auth/status endpoint.
+/// Request body for the /auth/start endpoint (initiates OAuth flow).
 /// </summary>
-public class AuthStatusRequest
+public class AuthStartRequest
 {
     public string InstallId { get; set; } = string.Empty;
-    public string Service { get; set; } = string.Empty;
+    public string SetupKey { get; set; } = string.Empty;
 }
 
 /// <summary>
-/// Response body for the POST /auth/status endpoint.
+/// Response body for the /auth/start endpoint.
+/// </summary>
+public class AuthStartResponse
+{
+    public bool Success { get; set; }
+    public string? AuthorizeUrl { get; set; }
+    public string? Error { get; set; }
+}
+
+/// <summary>
+/// Response body for the /auth/status endpoint.
 /// </summary>
 public class AuthStatusResponse
 {
-    public bool Connected { get; set; }
-    public string? ServiceName { get; set; }
-    public string? UserLabel { get; set; }
+    public bool Success { get; set; }
+    public bool IsAuthenticated { get; set; }
+    public string? Error { get; set; }
 }

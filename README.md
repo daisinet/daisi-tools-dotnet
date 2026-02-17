@@ -294,18 +294,29 @@ The catalog defines three sections:
 4. If the tool belongs to an existing plugin, add its `toolId` to the plugin's `toolIds` array
 5. Push to `dev` — the pipeline will automatically create the marketplace item in the dev database
 
-### Required GitHub Secrets (per environment)
+### Required GitHub Repository Secrets
+
+Shared secrets (same for dev and prod):
 
 | Secret | Purpose |
 |--------|---------|
 | `AZURE_CLIENT_ID` | OIDC federated credential for Azure login |
 | `AZURE_TENANT_ID` | Azure AD tenant |
 | `AZURE_SUBSCRIPTION_ID` | Azure subscription |
-| `COSMOSDB_ACCOUNT_NAME` | Cosmos DB account name |
-| `COSMOSDB_DATABASE_NAME` | Database name |
 | `DAISI_ACCOUNT_ID` | System account ID for first-party tools |
-| `SECURE_ENDPOINT_URL` | Azure Functions base URL |
-| `SECURE_AUTH_KEY` | Shared secret for X-Daisi-Auth header |
+
+Per-environment secrets (prefixed `DEV_` / `PROD_`):
+
+| Secret | Purpose |
+|--------|---------|
+| `DEV_COSMOSDB_ACCOUNT_NAME` | Dev Cosmos DB account name |
+| `DEV_COSMOSDB_DATABASE_NAME` | Dev database name |
+| `DEV_SECURE_ENDPOINT_URL` | Dev Azure Functions base URL |
+| `DEV_SECURE_AUTH_KEY` | Dev shared secret for X-Daisi-Auth |
+| `PROD_COSMOSDB_ACCOUNT_NAME` | Prod Cosmos DB account name |
+| `PROD_COSMOSDB_DATABASE_NAME` | Prod database name |
+| `PROD_SECURE_ENDPOINT_URL` | Prod Azure Functions base URL |
+| `PROD_SECURE_AUTH_KEY` | Prod shared secret for X-Daisi-Auth |
 
 ### Idempotency
 

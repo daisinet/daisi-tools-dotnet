@@ -10,9 +10,8 @@ on:
 
 jobs:
   sync:
-    name: Sync to Cosmos DB
+    name: Sync to Cosmos DB (${{ github.ref_name }})
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     permissions:
       id-token: write
       contents: read
@@ -33,8 +32,8 @@ jobs:
       - name: Sync marketplace catalog
         run: python marketplace/sync-marketplace.py
         env:
-          COSMOSDB_ACCOUNT: ${{ secrets.COSMOSDB_ACCOUNT_NAME }}
-          COSMOSDB_DATABASE: ${{ secrets.COSMOSDB_DATABASE_NAME }}
+          COSMOSDB_ACCOUNT: ${{ github.ref == 'refs/heads/main' && secrets.PROD_COSMOSDB_ACCOUNT_NAME || secrets.DEV_COSMOSDB_ACCOUNT_NAME }}
+          COSMOSDB_DATABASE: ${{ github.ref == 'refs/heads/main' && secrets.PROD_COSMOSDB_DATABASE_NAME || secrets.DEV_COSMOSDB_DATABASE_NAME }}
           DAISI_ACCOUNT_ID: ${{ secrets.DAISI_ACCOUNT_ID }}
-          SECURE_ENDPOINT_URL: ${{ secrets.SECURE_ENDPOINT_URL }}
-          SECURE_AUTH_KEY: ${{ secrets.SECURE_AUTH_KEY }}
+          SECURE_ENDPOINT_URL: ${{ github.ref == 'refs/heads/main' && secrets.PROD_SECURE_ENDPOINT_URL || secrets.DEV_SECURE_ENDPOINT_URL }}
+          SECURE_AUTH_KEY: ${{ github.ref == 'refs/heads/main' && secrets.PROD_SECURE_AUTH_KEY || secrets.DEV_SECURE_AUTH_KEY }}

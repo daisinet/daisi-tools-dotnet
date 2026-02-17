@@ -1,0 +1,40 @@
+name: Sync Marketplace Catalog
+
+on:
+  push:
+    branches: [dev, main]
+    paths:
+      - 'marketplace/**'
+      - 'Daisi.SecureTools/**'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync to Cosmos DB
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install Python dependencies
+        run: pip install azure-cosmos azure-identity -q
+
+      - name: Sync marketplace catalog
+        run: python marketplace/sync-marketplace.py
+        env:
+          COSMOSDB_ACCOUNT: ${{ secrets.COSMOSDB_ACCOUNT_NAME }}
+          COSMOSDB_DATABASE: ${{ secrets.COSMOSDB_DATABASE_NAME }}
+          DAISI_ACCOUNT_ID: ${{ secrets.DAISI_ACCOUNT_ID }}
+          SECURE_ENDPOINT_URL: ${{ secrets.SECURE_ENDPOINT_URL }}
+          SECURE_AUTH_KEY: ${{ secrets.SECURE_AUTH_KEY }}

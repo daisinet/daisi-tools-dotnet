@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -18,6 +18,14 @@
     <None Remove="SecureToolProvider\**" />
     <Compile Remove="SecureToolProvider.Tests\**" />
     <None Remove="SecureToolProvider.Tests\**" />
+    <Compile Remove="SecureToolProvider.Common\**" />
+    <None Remove="SecureToolProvider.Common\**" />
+    <Compile Remove="SecureToolProvider.Common.Tests\**" />
+    <None Remove="SecureToolProvider.Common.Tests\**" />
+    <Compile Remove="Daisi.SecureTools\**" />
+    <None Remove="Daisi.SecureTools\**" />
+    <Compile Remove="Daisi.SecureTools.Tests\**" />
+    <None Remove="Daisi.SecureTools.Tests\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -248,8 +248,68 @@ daisi-tools-dotnet/
 │       ├── Teams/                            #     Routes: /api/comms/teams/*
 │       └── Slack/                            #     Routes: /api/comms/slack/*
 ├── Daisi.SecureTools.Tests/                 # Consolidated secure tools tests
+├── marketplace/                             # Marketplace pipeline
+│   ├── catalog.json                         #   Declarative tool/plugin catalog
+│   └── sync-marketplace.py                  #   Cosmos DB sync script
+├── .github/workflows/
+│   └── sync-marketplace.yml                 #   CI/CD workflow for marketplace sync
 └── Daisi.Tools.sln                          # Solution file
 ```
+
+## Marketplace Pipeline
+
+The `marketplace/` directory contains an automated CI/CD pipeline that syncs first-party tools and plugins to the Cosmos DB marketplace on every push to `dev` or `main`.
+
+### How It Works
+
+```
+marketplace/catalog.json  →  sync-marketplace.py  →  GitHub Actions workflow
+      (source of truth)        (upsert to Cosmos)      (trigger on dev/main push)
+```
+
+1. **`marketplace/catalog.json`** — Declarative source of truth for all 38 first-party tools and 3 plugins. Defines providers, tools, and plugin bundles with full metadata (parameters, descriptions, tags, setup requirements).
+2. **`marketplace/sync-marketplace.py`** — Python script that reads the catalog and upserts `MarketplaceItem` documents to Cosmos DB using `azure-cosmos` + `azure-identity` (OIDC via `DefaultAzureCredential`).
+3. **`.github/workflows/sync-marketplace.yml`** — GitHub Actions workflow triggered on pushes to `dev` or `main` that touch `marketplace/` or `Daisi.SecureTools/`. Also supports manual `workflow_dispatch`.
+
+### Branch → Environment Mapping
+
+| Branch | GitHub Environment | Target Database |
+|--------|-------------------|-----------------|
+| `dev`  | `development`     | Dev Cosmos DB   |
+| `main` | `production`      | Prod Cosmos DB  |
+
+### Catalog Structure
+
+The catalog defines three sections:
+
+- **Providers** (15) — Route prefixes and setup parameters (OAuth or API key) for each tool provider
+- **Tools** (38) — Individual tool definitions with ID, name, description, tags, parameters, and AI use instructions
+- **Plugins** (3) — Bundles that group tools sharing a single OAuth flow: Google Workspace (10 tools), Microsoft 365 (9 tools), Firecrawl (5 tools)
+
+### Adding a New Tool
+
+1. Add the tool implementation under `Daisi.SecureTools/`
+2. Add a provider entry to `catalog.json` if the provider is new
+3. Add the tool entry to the `tools` array in `catalog.json` with all metadata
+4. If the tool belongs to an existing plugin, add its `toolId` to the plugin's `toolIds` array
+5. Push to `dev` — the pipeline will automatically create the marketplace item in the dev database
+
+### Required GitHub Secrets (per environment)
+
+| Secret | Purpose |
+|--------|---------|
+| `AZURE_CLIENT_ID` | OIDC federated credential for Azure login |
+| `AZURE_TENANT_ID` | Azure AD tenant |
+| `AZURE_SUBSCRIPTION_ID` | Azure subscription |
+| `COSMOSDB_ACCOUNT_NAME` | Cosmos DB account name |
+| `COSMOSDB_DATABASE_NAME` | Database name |
+| `DAISI_ACCOUNT_ID` | System account ID for first-party tools |
+| `SECURE_ENDPOINT_URL` | Azure Functions base URL |
+| `SECURE_AUTH_KEY` | Shared secret for X-Daisi-Auth header |
+
+### Idempotency
+
+The sync script uses `upsert_item()` and preserves existing metrics (download counts, ratings, featured status) from previously synced items. It is safe to run repeatedly — the same catalog produces the same documents.
 
 ## Running Tests
 

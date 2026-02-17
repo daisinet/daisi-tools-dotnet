@@ -82,7 +82,7 @@ public class FacebookFunctions : SecureToolFunctionBase
 
     [Function("social-facebook-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/facebook/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/facebook/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-facebook-auth-callback")]

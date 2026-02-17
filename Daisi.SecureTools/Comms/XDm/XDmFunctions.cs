@@ -84,7 +84,7 @@ public class XDmFunctions : SecureToolFunctionBase
 
     [Function("comms-xdm-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/xdm/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "comms/xdm/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("comms-xdm-auth-callback")]

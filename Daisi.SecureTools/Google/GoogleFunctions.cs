@@ -105,7 +105,7 @@ public class GoogleFunctions : SecureToolFunctionBase
 
     [Function("google-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "google/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "google/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("google-auth-callback")]

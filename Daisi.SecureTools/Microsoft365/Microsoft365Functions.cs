@@ -99,7 +99,7 @@ public class Microsoft365Functions : SecureToolFunctionBase
 
     [Function("m365-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "m365/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "m365/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("m365-auth-callback")]

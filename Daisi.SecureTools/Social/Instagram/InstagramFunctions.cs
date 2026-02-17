@@ -84,7 +84,7 @@ public class InstagramFunctions : SecureToolFunctionBase
 
     [Function("social-instagram-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/instagram/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/instagram/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-instagram-auth-callback")]

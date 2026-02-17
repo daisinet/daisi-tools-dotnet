@@ -85,7 +85,7 @@ public class RedditFunctions : SecureToolFunctionBase
 
     [Function("social-reddit-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/reddit/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/reddit/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-reddit-auth-callback")]

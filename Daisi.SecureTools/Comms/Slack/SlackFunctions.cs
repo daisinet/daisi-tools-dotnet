@@ -84,7 +84,7 @@ public class SlackFunctions : SecureToolFunctionBase
 
     [Function("comms-slack-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/slack/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "comms/slack/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("comms-slack-auth-callback")]

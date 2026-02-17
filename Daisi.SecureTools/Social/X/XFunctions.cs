@@ -82,7 +82,7 @@ public class XFunctions : SecureToolFunctionBase
 
     [Function("social-x-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/x/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/x/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-x-auth-callback")]

@@ -83,7 +83,7 @@ public class TikTokFunctions : SecureToolFunctionBase
 
     [Function("social-tiktok-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/tiktok/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/tiktok/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-tiktok-auth-callback")]

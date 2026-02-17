@@ -16,6 +16,8 @@
     <None Remove="Daisi.Tools.Tests\**" />
     <Compile Remove="SecureToolProvider\**" />
     <None Remove="SecureToolProvider\**" />
+    <Compile Remove="SecureToolProvider.Tests\**" />
+    <None Remove="SecureToolProvider.Tests\**" />
   </ItemGroup>
 
   <ItemGroup>

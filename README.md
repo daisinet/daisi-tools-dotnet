@@ -7,17 +7,20 @@ The `SecureToolProvider/` directory contains a reference Azure Functions impleme
 
 **What it shows:**
 - `SecureToolFunctions.cs` — Four HTTP endpoints implementing the provider contract:
-  - `/install` — ORC calls on purchase with `X-Daisi-Auth` header and `installId`
+  - `/install` — ORC calls on purchase with `X-Daisi-Auth` header, `installId`, and optional `bundleInstallId`
   - `/uninstall` — ORC calls on deactivation with `X-Daisi-Auth` header and `installId`
   - `/configure` — Manager UI calls directly with `installId` (no auth header)
   - `/execute` — Consumer hosts call directly with `installId` (no auth header)
-- `SetupStore.cs` — In-memory installation registry and setup data storage (replace with Azure Key Vault or encrypted DB in production)
+- `SetupStore.cs` — In-memory installation registry, setup data storage, and bundle-aware OAuth token keying (replace with Azure Key Vault or encrypted DB in production)
 - `Models.cs` — Request/response models matching the Daisinet provider API contract
 
 **OAuth reference endpoints:**
 - `/auth/start` (GET) — OAuth initiation. Receives `installId`, `returnUrl`, `service` as query params. In production, redirects to external consent screen; in the reference impl, simulates by redirecting to own callback.
 - `/auth/callback` (GET) — OAuth callback. Decodes state, exchanges code for tokens (simulated), stores them via `SetupStore.SaveOAuthTokens()`, and redirects popup back to Daisinet's `/marketplace/oauth-callback`.
 - `/auth/status` (POST) — Connection status check. Receives `{ installId, service }`, returns `{ connected, serviceName, userLabel }`. Called by the Manager UI to display OAuth connection badges.
+
+**Bundle OAuth support:**
+When tools are bundled in a Plugin, the ORC sends a shared `bundleInstallId` during `/install`. The `SetupStore` maps installs to their bundle and resolves OAuth token keys to the bundle level, so authenticating from any tool in the bundle makes all sibling tools show "Connected". Non-OAuth setup (API keys, etc.) remains per-tool via each tool's own `InstallId`.
 
 **Authentication model:**
 - `/install` and `/uninstall` are ORC-originated — verified via `X-Daisi-Auth` shared secret

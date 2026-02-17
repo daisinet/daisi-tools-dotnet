@@ -39,23 +39,4 @@ public class ModelsTests
         Assert.Equal("user@example.com", resp.UserLabel);
     }
 
-    [Fact]
-    public void OAuthTokenData_RecordEquality()
-    {
-        var expires = DateTime.UtcNow.AddHours(1);
-        var token1 = new OAuthTokenData("access", "refresh", expires);
-        var token2 = new OAuthTokenData("access", "refresh", expires);
-
-        Assert.Equal(token1, token2);
-    }
-
-    [Fact]
-    public void OAuthTokenData_RecordInequality()
-    {
-        var expires = DateTime.UtcNow.AddHours(1);
-        var token1 = new OAuthTokenData("access-1", "refresh", expires);
-        var token2 = new OAuthTokenData("access-2", "refresh", expires);
-
-        Assert.NotEqual(token1, token2);
-    }
 }

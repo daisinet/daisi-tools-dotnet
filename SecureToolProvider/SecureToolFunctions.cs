@@ -42,9 +42,10 @@ public class SecureToolFunctions(ILogger<SecureToolFunctions> logger, SetupStore
             return badRequest;
         }
 
-        setupStore.RegisterInstall(body.InstallId, body.ToolId);
+        setupStore.RegisterInstall(body.InstallId, body.ToolId, body.BundleInstallId);
 
-        logger.LogInformation("Installed tool {ToolId} with installId {InstallId}", body.ToolId, body.InstallId);
+        logger.LogInformation("Installed tool {ToolId} with installId {InstallId}, bundleInstallId {BundleInstallId}",
+            body.ToolId, body.InstallId, body.BundleInstallId ?? "(none)");
 
         var response = req.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(new InstallResponse { Success = true });
@@ -173,10 +174,11 @@ public class SecureToolFunctions(ILogger<SecureToolFunctions> logger, SetupStore
         var oauthInfo = new List<string>();
         foreach (var key in new[] { "office365", "google", "x" }) // Check common service names
         {
-            if (setupStore.IsOAuthConnected(body.InstallId, key))
+            if (setupStore.HasOAuthTokens(body.InstallId, key))
             {
                 var tokens = setupStore.GetOAuthTokens(body.InstallId, key);
-                oauthInfo.Add($"{key}: connected (expires {tokens?.ExpiresAt:u})");
+                var expiresLabel = tokens != null && tokens.TryGetValue("expires_at", out var exp) ? exp : "unknown";
+                oauthInfo.Add($"{key}: connected (expires {expiresLabel})");
             }
         }
         var oauthSummary = oauthInfo.Count > 0
@@ -290,7 +292,12 @@ public class SecureToolFunctions(ILogger<SecureToolFunctions> logger, SetupStore
         var refreshToken = $"simulated-refresh-token-{Guid.NewGuid():N}";
         var expiresAt = DateTime.UtcNow.AddHours(1);
 
-        setupStore.SaveOAuthTokens(installId, service, accessToken, refreshToken, expiresAt);
+        setupStore.SaveOAuthTokens(installId, service, new Dictionary<string, string>
+        {
+            ["access_token"] = accessToken,
+            ["refresh_token"] = refreshToken,
+            ["expires_at"] = expiresAt.ToString("o")
+        });
 
         logger.LogInformation("OAuth callback: stored tokens for installId {InstallId}, service {Service}", installId, service);
 
@@ -326,7 +333,7 @@ public class SecureToolFunctions(ILogger<SecureToolFunctions> logger, SetupStore
             return forbidden;
         }
 
-        var connected = setupStore.IsOAuthConnected(body.InstallId, body.Service);
+        var connected = setupStore.HasOAuthTokens(body.InstallId, body.Service);
 
         var response = req.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(new AuthStatusResponse

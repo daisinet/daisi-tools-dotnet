@@ -5,8 +5,7 @@ using SecureToolProvider.Tests.Helpers;
 namespace SecureToolProvider.Tests;
 
 /// <summary>
-/// Integration/smoke tests for the three OAuth Azure Function endpoints.
-/// Tests the full request-response cycle through the function classes.
+/// Integration/smoke tests for the OAuth Azure Function endpoints and bundle flows.
 /// </summary>
 public class SecureToolOAuthEndpointTests
 {
@@ -44,7 +43,11 @@ public class SecureToolOAuthEndpointTests
     public async Task AuthStatus_RegisteredInstall_Connected_ReturnsTrue()
     {
         _store.RegisterInstall("inst-1", "tool-1");
-        _store.SaveOAuthTokens("inst-1", "office365", "access", "refresh", DateTime.UtcNow.AddHours(1));
+        _store.SaveOAuthTokens("inst-1", "office365", new Dictionary<string, string>
+        {
+            ["access_token"] = "access",
+            ["refresh_token"] = "refresh"
+        });
 
         var request = TestHelpers.CreatePostRequest(
             "http://localhost/api/auth/status",
@@ -86,7 +89,11 @@ public class SecureToolOAuthEndpointTests
     public async Task AuthStatus_MultipleServices_ReportsEachIndependently()
     {
         _store.RegisterInstall("inst-1", "tool-1");
-        _store.SaveOAuthTokens("inst-1", "office365", "at", "rt", DateTime.UtcNow.AddHours(1));
+        _store.SaveOAuthTokens("inst-1", "office365", new Dictionary<string, string>
+        {
+            ["access_token"] = "at",
+            ["refresh_token"] = "rt"
+        });
         // google is NOT connected
 
         var o365Req = TestHelpers.CreatePostRequest(
@@ -194,12 +201,11 @@ public class SecureToolOAuthEndpointTests
         Assert.Equal("http://manager/oauth-callback", locations.First());
 
         // Tokens should be stored
-        Assert.True(_store.IsOAuthConnected("inst-1", "office365"));
+        Assert.True(_store.HasOAuthTokens("inst-1", "office365"));
         var tokens = _store.GetOAuthTokens("inst-1", "office365");
         Assert.NotNull(tokens);
-        Assert.StartsWith("simulated-access-token-", tokens.AccessToken);
-        Assert.StartsWith("simulated-refresh-token-", tokens.RefreshToken);
-        Assert.True(tokens.ExpiresAt > DateTime.UtcNow);
+        Assert.StartsWith("simulated-access-token-", tokens["access_token"]);
+        Assert.StartsWith("simulated-refresh-token-", tokens["refresh_token"]);
     }
 
     [Fact]
@@ -296,13 +302,17 @@ public class SecureToolOAuthEndpointTests
     }
 
     [Fact]
-    public async Task Reconnect_OverwritesPreviousTokens()
+    public void Reconnect_OverwritesPreviousTokens()
     {
         _store.RegisterInstall("inst-recon", "tool-1");
-        _store.SaveOAuthTokens("inst-recon", "google", "old-access", "old-refresh", DateTime.UtcNow.AddHours(1));
+        _store.SaveOAuthTokens("inst-recon", "google", new Dictionary<string, string>
+        {
+            ["access_token"] = "old-access",
+            ["refresh_token"] = "old-refresh"
+        });
 
         // Verify connected
-        Assert.True(_store.IsOAuthConnected("inst-recon", "google"));
+        Assert.True(_store.HasOAuthTokens("inst-recon", "google"));
         var oldTokens = _store.GetOAuthTokens("inst-recon", "google");
 
         // Re-do the OAuth flow (simulating reconnect)
@@ -316,7 +326,7 @@ public class SecureToolOAuthEndpointTests
         // Verify tokens were overwritten
         var newTokens = _store.GetOAuthTokens("inst-recon", "google");
         Assert.NotNull(newTokens);
-        Assert.NotEqual(oldTokens!.AccessToken, newTokens.AccessToken);
+        Assert.NotEqual(oldTokens!["access_token"], newTokens["access_token"]);
     }
 
     [Fact]
@@ -324,8 +334,12 @@ public class SecureToolOAuthEndpointTests
     {
         // Setup: install + OAuth connect
         _store.RegisterInstall("inst-unsub", "tool-1");
-        _store.SaveOAuthTokens("inst-unsub", "office365", "at", "rt", DateTime.UtcNow.AddHours(1));
-        Assert.True(_store.IsOAuthConnected("inst-unsub", "office365"));
+        _store.SaveOAuthTokens("inst-unsub", "office365", new Dictionary<string, string>
+        {
+            ["access_token"] = "at",
+            ["refresh_token"] = "rt"
+        });
+        Assert.True(_store.HasOAuthTokens("inst-unsub", "office365"));
 
         // Uninstall
         _store.RemoveInstall("inst-unsub");
@@ -336,6 +350,115 @@ public class SecureToolOAuthEndpointTests
             new AuthStatusRequest { InstallId = "inst-unsub", Service = "office365" });
         var statusResp = await _functions.AuthStatus(statusReq);
         Assert.Equal(HttpStatusCode.Forbidden, statusResp.StatusCode);
+    }
+
+    #endregion
+
+    #region Bundle OAuth Flow
+
+    [Fact]
+    public void BundleFlow_InstallTwoTools_OAuthFromToolA_ToolBSeesConnected()
+    {
+        // Simulate ORC sending /install for two bundled tools
+        _store.RegisterInstall("inst-tool-a", "calendar-tool", "binst-shared");
+        _store.RegisterInstall("inst-tool-b", "email-tool", "binst-shared");
+
+        // Both tools should be installed
+        Assert.True(_store.IsInstalled("inst-tool-a"));
+        Assert.True(_store.IsInstalled("inst-tool-b"));
+
+        // Neither tool has OAuth tokens yet
+        Assert.False(_store.HasOAuthTokens("inst-tool-a", "google"));
+        Assert.False(_store.HasOAuthTokens("inst-tool-b", "google"));
+
+        // User completes OAuth from tool A's configure page
+        _store.SaveOAuthTokens("inst-tool-a", "google", new Dictionary<string, string>
+        {
+            ["access_token"] = "ya29.google-token",
+            ["refresh_token"] = "1//google-refresh"
+        });
+
+        // Tool A should see Connected
+        Assert.True(_store.HasOAuthTokens("inst-tool-a", "google"));
+        var toolATokens = _store.GetOAuthTokens("inst-tool-a", "google");
+        Assert.NotNull(toolATokens);
+        Assert.Equal("ya29.google-token", toolATokens["access_token"]);
+
+        // Tool B should ALSO see Connected (shared via bundleInstallId)
+        Assert.True(_store.HasOAuthTokens("inst-tool-b", "google"));
+        var toolBTokens = _store.GetOAuthTokens("inst-tool-b", "google");
+        Assert.NotNull(toolBTokens);
+        Assert.Equal("ya29.google-token", toolBTokens["access_token"]);
+    }
+
+    [Fact]
+    public void BundleFlow_NonOAuthSetup_RemainsPerTool()
+    {
+        // Install two bundled tools
+        _store.RegisterInstall("inst-tool-a", "calendar-tool", "binst-shared");
+        _store.RegisterInstall("inst-tool-b", "email-tool", "binst-shared");
+
+        // Each tool gets its own non-OAuth setup (API keys, etc.)
+        _store.SaveSetup("inst-tool-a", new Dictionary<string, string>
+        {
+            ["api_key"] = "key-for-calendar"
+        });
+        _store.SaveSetup("inst-tool-b", new Dictionary<string, string>
+        {
+            ["api_key"] = "key-for-email"
+        });
+
+        // Setup remains per-tool, not shared
+        var setupA = _store.GetSetup("inst-tool-a");
+        var setupB = _store.GetSetup("inst-tool-b");
+
+        Assert.NotNull(setupA);
+        Assert.NotNull(setupB);
+        Assert.Equal("key-for-calendar", setupA["api_key"]);
+        Assert.Equal("key-for-email", setupB["api_key"]);
+    }
+
+    [Fact]
+    public void NonBundledTool_OAuthStaysIsolated()
+    {
+        // Install two tools WITHOUT a bundle
+        _store.RegisterInstall("inst-standalone-a", "tool-x");
+        _store.RegisterInstall("inst-standalone-b", "tool-y");
+
+        // OAuth from tool X
+        _store.SaveOAuthTokens("inst-standalone-a", "github", new Dictionary<string, string>
+        {
+            ["access_token"] = "gh_tok_123"
+        });
+
+        // Tool X sees tokens, tool Y does NOT
+        Assert.True(_store.HasOAuthTokens("inst-standalone-a", "github"));
+        Assert.False(_store.HasOAuthTokens("inst-standalone-b", "github"));
+    }
+
+    [Fact]
+    public void BundleFlow_MultipleOAuthServices_IndependentPerService()
+    {
+        _store.RegisterInstall("inst-tool-a", "calendar-tool", "binst-shared");
+        _store.RegisterInstall("inst-tool-b", "email-tool", "binst-shared");
+
+        // OAuth for Google from tool A
+        _store.SaveOAuthTokens("inst-tool-a", "google", new Dictionary<string, string>
+        {
+            ["access_token"] = "google-tok"
+        });
+
+        // OAuth for Microsoft from tool B
+        _store.SaveOAuthTokens("inst-tool-b", "microsoft", new Dictionary<string, string>
+        {
+            ["access_token"] = "ms-tok"
+        });
+
+        // Both tools see both services
+        Assert.True(_store.HasOAuthTokens("inst-tool-a", "google"));
+        Assert.True(_store.HasOAuthTokens("inst-tool-b", "google"));
+        Assert.True(_store.HasOAuthTokens("inst-tool-a", "microsoft"));
+        Assert.True(_store.HasOAuthTokens("inst-tool-b", "microsoft"));
     }
 
     #endregion

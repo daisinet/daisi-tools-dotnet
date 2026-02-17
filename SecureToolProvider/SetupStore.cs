@@ -8,14 +8,18 @@ public class SetupStore
 {
     private readonly ConcurrentDictionary<string, Dictionary<string, string>> _setupData = new();
     private readonly ConcurrentDictionary<string, string> _installations = new();
-    private readonly ConcurrentDictionary<string, OAuthTokenData> _oauthTokens = new();
+    private readonly ConcurrentDictionary<string, string> _bundleMap = new();
+    private readonly ConcurrentDictionary<string, Dictionary<string, string>> _oauthTokens = new();
 
     /// <summary>
     /// Register an installation. Called when ORC notifies /install on purchase.
+    /// Optionally associates the install with a shared bundle ID for OAuth.
     /// </summary>
-    public void RegisterInstall(string installId, string toolId)
+    public void RegisterInstall(string installId, string toolId, string? bundleInstallId = null)
     {
         _installations[installId] = toolId;
+        if (!string.IsNullOrEmpty(bundleInstallId))
+            _bundleMap[installId] = bundleInstallId;
     }
 
     /// <summary>
@@ -24,8 +28,11 @@ public class SetupStore
     public bool RemoveInstall(string installId)
     {
         _setupData.TryRemove(installId, out _);
+        _bundleMap.TryRemove(installId, out _);
 
-        // Remove all OAuth tokens for this installation
+        // Remove OAuth tokens keyed directly by this installId (non-bundled installs).
+        // Bundled tokens are keyed by bundleInstallId and shared, so they are NOT removed
+        // here — they remain available to sibling tools in the bundle.
         foreach (var key in _oauthTokens.Keys)
         {
             if (key.StartsWith($"{installId}:"))
@@ -41,6 +48,14 @@ public class SetupStore
     public bool IsInstalled(string installId)
     {
         return _installations.ContainsKey(installId);
+    }
+
+    /// <summary>
+    /// Get the bundle install ID for an install, if one exists.
+    /// </summary>
+    public string? GetBundleInstallId(string installId)
+    {
+        return _bundleMap.TryGetValue(installId, out var bundleId) ? bundleId : null;
     }
 
     /// <summary>
@@ -60,35 +75,39 @@ public class SetupStore
     }
 
     /// <summary>
-    /// Store OAuth tokens for a specific service connection.
+    /// Resolve the OAuth key for an install. If the install belongs to a bundle,
+    /// uses the bundleInstallId so OAuth tokens are shared across all tools in the bundle.
     /// </summary>
-    public void SaveOAuthTokens(string installId, string service, string accessToken, string refreshToken, DateTime expiresAt)
+    public string ResolveOAuthKey(string installId, string service)
     {
-        var key = $"{installId}:{service}";
-        _oauthTokens[key] = new OAuthTokenData(accessToken, refreshToken, expiresAt);
+        var key = _bundleMap.TryGetValue(installId, out var bundleId) ? bundleId : installId;
+        return $"{key}:{service}";
     }
 
     /// <summary>
-    /// Retrieve OAuth tokens for a specific service connection.
+    /// Store OAuth tokens keyed by the resolved OAuth key (bundle-aware).
     /// </summary>
-    public OAuthTokenData? GetOAuthTokens(string installId, string service)
+    public void SaveOAuthTokens(string installId, string service, Dictionary<string, string> tokens)
     {
-        var key = $"{installId}:{service}";
-        return _oauthTokens.TryGetValue(key, out var data) ? data : null;
+        var key = ResolveOAuthKey(installId, service);
+        _oauthTokens[key] = tokens;
     }
 
     /// <summary>
-    /// Check if an OAuth connection exists for a specific service.
+    /// Retrieve OAuth tokens for an install. Resolves to bundle-level tokens if in a bundle.
     /// </summary>
-    public bool IsOAuthConnected(string installId, string service)
+    public Dictionary<string, string>? GetOAuthTokens(string installId, string service)
     {
-        var key = $"{installId}:{service}";
+        var key = ResolveOAuthKey(installId, service);
+        return _oauthTokens.TryGetValue(key, out var tokens) ? tokens : null;
+    }
+
+    /// <summary>
+    /// Check if OAuth tokens exist for an install (bundle-aware).
+    /// </summary>
+    public bool HasOAuthTokens(string installId, string service)
+    {
+        var key = ResolveOAuthKey(installId, service);
         return _oauthTokens.ContainsKey(key);
     }
 }
-
-/// <summary>
-/// Stored OAuth token data for a service connection.
-/// In production, encrypt these values at rest.
-/// </summary>
-public record OAuthTokenData(string AccessToken, string RefreshToken, DateTime ExpiresAt);

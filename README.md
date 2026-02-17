@@ -56,6 +56,58 @@ Connects Daisi AI agents to the Firecrawl API for web scraping, crawling, and AI
 
 **Setup:** API key — user provides their Firecrawl API key during configuration.
 
+### Social Media
+
+Connects Daisi AI agents to social media platforms for posting content. Each platform uses OAuth 2.0 and has its own route prefix under `/api/social/`. All API calls use raw `HttpClient` — no platform-specific SDK dependencies.
+
+#### X (Twitter)
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-social-x-post` | `/api/social/x/` | Post a tweet with optional media, reply, or quote tweet |
+
+**Setup:** OAuth 2.0 — requires `XClientId` and `XClientSecret`. Scopes: `tweet.read tweet.write users.read media.write offline.access`.
+
+#### Facebook
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-social-facebook-post` | `/api/social/facebook/` | Post to a Facebook Page (text, photo, or link) |
+
+**Setup:** OAuth 2.0 — requires `FacebookClientId` and `FacebookClientSecret`. Scopes: `pages_manage_posts pages_read_engagement pages_show_list`. Posts to Pages only (not personal profiles).
+
+#### Reddit
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-social-reddit-submit` | `/api/social/reddit/` | Submit a text or link post to a subreddit |
+
+**Setup:** OAuth 2.0 — requires `RedditClientId` and `RedditClientSecret`. Scopes: `submit identity`. Uses `duration=permanent` for refresh tokens.
+
+#### LinkedIn
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-social-linkedin-post` | `/api/social/linkedin/` | Post text or image content to LinkedIn |
+
+**Setup:** OAuth 2.0 — requires `LinkedInClientId` and `LinkedInClientSecret`. Scopes: `w_member_social openid profile`. Uses versioned LinkedIn REST API headers.
+
+#### Instagram
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-social-instagram-publish` | `/api/social/instagram/` | Publish image, video, or carousel to Instagram |
+
+**Setup:** OAuth 2.0 via Facebook Login — requires `InstagramClientId` and `InstagramClientSecret`. Scopes: `instagram_basic instagram_content_publish pages_read_engagement pages_show_list`. Requires a Business or Creator Instagram account. Media must be at public URLs.
+
+#### TikTok
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-social-tiktok-publish` | `/api/social/tiktok/` | Publish video or photo post to TikTok |
+
+**Setup:** OAuth 2.0 — requires `TikTokClientKey` and `TikTokClientSecret`. Scopes: `video.upload video.publish user.info.basic`. Unaudited apps can only post as PRIVATE visibility.
+
 ## Shared Library: SecureToolProvider.Common
 
 Production-grade shared library used by all secure tool integrations. Provides:
@@ -111,10 +163,20 @@ daisi-tools-dotnet/
 │   │   ├── Microsoft365Functions.cs         #     Routes: /api/m365/*
 │   │   ├── GraphClientFactory.cs
 │   │   └── Tools/                           #     9 tool implementations
-│   └── Firecrawl/                           #   Firecrawl provider
-│       ├── FirecrawlFunctions.cs            #     Routes: /api/firecrawl/*
-│       ├── FirecrawlClient.cs
-│       └── Tools/                           #     5 tool implementations
+│   ├── Firecrawl/                           #   Firecrawl provider
+│   │   ├── FirecrawlFunctions.cs            #     Routes: /api/firecrawl/*
+│   │   ├── FirecrawlClient.cs
+│   │   └── Tools/                           #     5 tool implementations
+│   └── Social/                              #   Social media providers
+│       ├── ISocialToolExecutor.cs           #     Common tool interface
+│       ├── SocialHttpClient.cs              #     Shared HTTP client wrapper
+│       ├── MediaHelper.cs                   #     Media download/conversion
+│       ├── X/                               #     Routes: /api/social/x/*
+│       ├── Facebook/                        #     Routes: /api/social/facebook/*
+│       ├── Reddit/                          #     Routes: /api/social/reddit/*
+│       ├── LinkedIn/                        #     Routes: /api/social/linkedin/*
+│       ├── Instagram/                       #     Routes: /api/social/instagram/*
+│       └── TikTok/                          #     Routes: /api/social/tiktok/*
 ├── Daisi.SecureTools.Tests/                 # Consolidated secure tools tests
 └── Daisi.Tools.sln                          # Solution file
 ```
@@ -148,3 +210,15 @@ Required app settings:
 | `MicrosoftClientId` | Microsoft OAuth client ID |
 | `MicrosoftClientSecret` | Microsoft OAuth client secret |
 | `MicrosoftTenantId` | Azure AD tenant ID (default: `common`) |
+| `XClientId` | X (Twitter) OAuth client ID |
+| `XClientSecret` | X (Twitter) OAuth client secret |
+| `FacebookClientId` | Facebook OAuth app ID |
+| `FacebookClientSecret` | Facebook OAuth app secret |
+| `RedditClientId` | Reddit OAuth client ID |
+| `RedditClientSecret` | Reddit OAuth client secret |
+| `LinkedInClientId` | LinkedIn OAuth client ID |
+| `LinkedInClientSecret` | LinkedIn OAuth client secret |
+| `InstagramClientId` | Instagram (Facebook Login) app ID |
+| `InstagramClientSecret` | Instagram (Facebook Login) app secret |
+| `TikTokClientKey` | TikTok OAuth client key |
+| `TikTokClientSecret` | TikTok OAuth client secret |

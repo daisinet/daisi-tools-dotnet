@@ -8,6 +8,18 @@
     "GoogleClientSecret": "",
     "MicrosoftClientId": "",
     "MicrosoftClientSecret": "",
-    "MicrosoftTenantId": "common"
+    "MicrosoftTenantId": "common",
+    "XClientId": "",
+    "XClientSecret": "",
+    "FacebookClientId": "",
+    "FacebookClientSecret": "",
+    "RedditClientId": "",
+    "RedditClientSecret": "",
+    "LinkedInClientId": "",
+    "LinkedInClientSecret": "",
+    "InstagramClientId": "",
+    "InstagramClientSecret": "",
+    "TikTokClientKey": "",
+    "TikTokClientSecret": ""
   }
 }

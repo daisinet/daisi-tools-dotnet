@@ -5,6 +5,7 @@ using SecureToolProvider.Common;
 using Daisi.SecureTools.Google;
 using Daisi.SecureTools.Microsoft365;
 using Daisi.SecureTools.Firecrawl;
+using Daisi.SecureTools.Social;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -15,6 +16,7 @@ var host = new HostBuilder()
         services.AddSingleton<GoogleServiceFactory>();
         services.AddSingleton<GraphClientFactory>();
         services.AddSingleton<FirecrawlClient>();
+        services.AddSingleton<SocialHttpClient>();
         services.AddHttpClient();
     })
     .Build();

@@ -138,7 +138,9 @@ public abstract class SecureToolFunctionBase
     }
 
     /// <summary>
-    /// POST /api/auth/start — Initiates the OAuth flow by returning the authorization URL.
+    /// GET or POST /api/auth/start — Initiates the OAuth flow.
+    /// GET: reads installId/service from query params and redirects the browser to the OAuth provider.
+    /// POST: reads from JSON body and returns the authorize URL as JSON.
     /// </summary>
     protected async Task<HttpResponseData> HandleAuthStartAsync(HttpRequestData req)
     {
@@ -147,16 +149,39 @@ public abstract class SecureToolFunctionBase
             return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
                 new AuthStartResponse { Success = false, Error = "This tool does not use OAuth." });
 
-        var body = await DeserializeAsync<AuthStartRequest>(req);
-        if (body is null || string.IsNullOrEmpty(body.InstallId))
-            return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
-                new AuthStartResponse { Success = false, Error = "Invalid request body" });
+        string? installId;
+        string? setupKey;
 
-        if (!await SetupStore.IsInstalledAsync(body.InstallId))
+        if (req.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+        {
+            var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
+            installId = query["installId"];
+            setupKey = query["service"] ?? string.Empty;
+        }
+        else
+        {
+            var body = await DeserializeAsync<AuthStartRequest>(req);
+            installId = body?.InstallId;
+            setupKey = body?.SetupKey ?? string.Empty;
+        }
+
+        if (string.IsNullOrEmpty(installId))
+            return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
+                new AuthStartResponse { Success = false, Error = "Missing installId" });
+
+        if (!await SetupStore.IsInstalledAsync(installId))
             return await CreateJsonResponse(req, HttpStatusCode.Forbidden,
                 new AuthStartResponse { Success = false, Error = "Unknown installation." });
 
-        var (authorizeUrl, _) = oauthHelper.BuildAuthorizeUrl(body.InstallId, body.SetupKey);
+        var (authorizeUrl, _) = oauthHelper.BuildAuthorizeUrl(installId, setupKey);
+
+        // GET requests redirect the browser directly to the OAuth provider
+        if (req.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+        {
+            var response = req.CreateResponse(HttpStatusCode.Redirect);
+            response.Headers.Add("Location", authorizeUrl);
+            return response;
+        }
 
         return await CreateJsonResponse(req, HttpStatusCode.OK,
             new AuthStartResponse { Success = true, AuthorizeUrl = authorizeUrl });

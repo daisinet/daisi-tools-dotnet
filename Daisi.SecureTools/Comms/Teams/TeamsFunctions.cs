@@ -85,7 +85,7 @@ public class TeamsFunctions : SecureToolFunctionBase
 
     [Function("comms-teams-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/teams/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "comms/teams/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("comms-teams-auth-callback")]

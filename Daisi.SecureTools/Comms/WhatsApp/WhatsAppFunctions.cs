@@ -84,7 +84,7 @@ public class WhatsAppFunctions : SecureToolFunctionBase
 
     [Function("comms-whatsapp-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/whatsapp/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "comms/whatsapp/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("comms-whatsapp-auth-callback")]

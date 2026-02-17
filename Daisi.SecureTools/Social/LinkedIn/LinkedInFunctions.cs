@@ -82,7 +82,7 @@ public class LinkedInFunctions : SecureToolFunctionBase
 
     [Function("social-linkedin-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/linkedin/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/linkedin/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-linkedin-auth-callback")]

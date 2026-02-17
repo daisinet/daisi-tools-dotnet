@@ -108,6 +108,60 @@ Connects Daisi AI agents to social media platforms for posting content. Each pla
 
 **Setup:** OAuth 2.0 — requires `TikTokClientKey` and `TikTokClientSecret`. Scopes: `video.upload video.publish user.info.basic`. Unaudited apps can only post as PRIVATE visibility.
 
+### Communications
+
+Connects Daisi AI agents to messaging and communications platforms for sending SMS, making voice calls, sending emails, and messaging via WhatsApp, Telegram, X DMs, Teams, and Slack. Reuses the shared `SocialHttpClient` and `MediaHelper` from Social providers.
+
+#### Twilio (SMS, Voice, Email)
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-comms-twilio-sms` | `/api/comms/twilio/` | Send an SMS message |
+| `daisi-comms-twilio-voice` | | Initiate a voice call with TwiML |
+| `daisi-comms-twilio-email` | | Send an email via SendGrid |
+
+**Setup:** API key — user provides Twilio Account SID, Auth Token, and optionally a SendGrid API key and default `fromPhone` during configuration. No OAuth required.
+
+#### WhatsApp
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-comms-whatsapp-send` | `/api/comms/whatsapp/` | Send a text, template, or media message via WhatsApp Business |
+
+**Setup:** OAuth 2.0 via Facebook Login (Meta Cloud API) — requires `WhatsAppClientId` and `WhatsAppClientSecret`. Scopes: `whatsapp_business_management whatsapp_business_messaging`.
+
+#### Telegram
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-comms-telegram-send` | `/api/comms/telegram/` | Send a message, photo, document, or video via Telegram Bot API |
+
+**Setup:** API key — user provides their Telegram Bot Token (from BotFather) during configuration. No OAuth required.
+
+#### X Direct Messages
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-comms-xdm-send` | `/api/comms/xdm/` | Send a direct message on X (Twitter) |
+
+**Setup:** OAuth 2.0 — requires `XDmClientId` and `XDmClientSecret` (independent from social X posting config). Scopes: `dm.read dm.write users.read offline.access`.
+
+#### Microsoft Teams
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-comms-teams-send` | `/api/comms/teams/` | Send a message to a Teams chat |
+
+**Setup:** OAuth 2.0 — requires `TeamsClientId`, `TeamsClientSecret`, and `TeamsTenantId` (independent from M365 config). Scopes: `Chat.ReadWrite ChatMessage.Send User.Read offline_access`.
+
+#### Slack
+
+| Tool ID | Route Prefix | Description |
+|---------|-------------|-------------|
+| `daisi-comms-slack-send` | `/api/comms/slack/` | Send a message to a Slack channel with optional threading |
+
+**Setup:** OAuth 2.0 — requires `SlackClientId` and `SlackClientSecret`. Scopes: `chat:write chat:write.public files:write`.
+
 ## Shared Library: SecureToolProvider.Common
 
 Production-grade shared library used by all secure tool integrations. Provides:
@@ -167,16 +221,24 @@ daisi-tools-dotnet/
 │   │   ├── FirecrawlFunctions.cs            #     Routes: /api/firecrawl/*
 │   │   ├── FirecrawlClient.cs
 │   │   └── Tools/                           #     5 tool implementations
-│   └── Social/                              #   Social media providers
-│       ├── ISocialToolExecutor.cs           #     Common tool interface
-│       ├── SocialHttpClient.cs              #     Shared HTTP client wrapper
-│       ├── MediaHelper.cs                   #     Media download/conversion
-│       ├── X/                               #     Routes: /api/social/x/*
-│       ├── Facebook/                        #     Routes: /api/social/facebook/*
-│       ├── Reddit/                          #     Routes: /api/social/reddit/*
-│       ├── LinkedIn/                        #     Routes: /api/social/linkedin/*
-│       ├── Instagram/                       #     Routes: /api/social/instagram/*
-│       └── TikTok/                          #     Routes: /api/social/tiktok/*
+│   ├── Social/                              #   Social media providers
+│   │   ├── ISocialToolExecutor.cs           #     Common tool interface
+│   │   ├── SocialHttpClient.cs              #     Shared HTTP client wrapper
+│   │   ├── MediaHelper.cs                   #     Media download/conversion
+│   │   ├── X/                               #     Routes: /api/social/x/*
+│   │   ├── Facebook/                        #     Routes: /api/social/facebook/*
+│   │   ├── Reddit/                          #     Routes: /api/social/reddit/*
+│   │   ├── LinkedIn/                        #     Routes: /api/social/linkedin/*
+│   │   ├── Instagram/                       #     Routes: /api/social/instagram/*
+│   │   └── TikTok/                          #     Routes: /api/social/tiktok/*
+│   └── Comms/                               #   Communications providers
+│       ├── ICommsToolExecutor.cs             #     Common tool interface
+│       ├── Twilio/                           #     Routes: /api/comms/twilio/*
+│       ├── WhatsApp/                         #     Routes: /api/comms/whatsapp/*
+│       ├── Telegram/                         #     Routes: /api/comms/telegram/*
+│       ├── XDm/                              #     Routes: /api/comms/xdm/*
+│       ├── Teams/                            #     Routes: /api/comms/teams/*
+│       └── Slack/                            #     Routes: /api/comms/slack/*
 ├── Daisi.SecureTools.Tests/                 # Consolidated secure tools tests
 └── Daisi.Tools.sln                          # Solution file
 ```
@@ -222,3 +284,15 @@ Required app settings:
 | `InstagramClientSecret` | Instagram (Facebook Login) app secret |
 | `TikTokClientKey` | TikTok OAuth client key |
 | `TikTokClientSecret` | TikTok OAuth client secret |
+| `TwilioAccountSid` | Twilio Account SID (optional — can be user-configured) |
+| `TwilioAuthToken` | Twilio Auth Token (optional — can be user-configured) |
+| `TwilioSendGridApiKey` | SendGrid API key for email (optional — can be user-configured) |
+| `WhatsAppClientId` | WhatsApp (Meta) OAuth app ID |
+| `WhatsAppClientSecret` | WhatsApp (Meta) OAuth app secret |
+| `XDmClientId` | X DMs OAuth client ID |
+| `XDmClientSecret` | X DMs OAuth client secret |
+| `TeamsClientId` | Teams OAuth client ID |
+| `TeamsClientSecret` | Teams OAuth client secret |
+| `TeamsTenantId` | Teams Azure AD tenant ID (default: `common`) |
+| `SlackClientId` | Slack OAuth client ID |
+| `SlackClientSecret` | Slack OAuth client secret |

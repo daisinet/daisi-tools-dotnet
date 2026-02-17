@@ -20,6 +20,18 @@
     "InstagramClientId": "",
     "InstagramClientSecret": "",
     "TikTokClientKey": "",
-    "TikTokClientSecret": ""
+    "TikTokClientSecret": "",
+    "TwilioAccountSid": "",
+    "TwilioAuthToken": "",
+    "TwilioSendGridApiKey": "",
+    "WhatsAppClientId": "",
+    "WhatsAppClientSecret": "",
+    "XDmClientId": "",
+    "XDmClientSecret": "",
+    "TeamsClientId": "",
+    "TeamsClientSecret": "",
+    "TeamsTenantId": "common",
+    "SlackClientId": "",
+    "SlackClientSecret": ""
   }
 }

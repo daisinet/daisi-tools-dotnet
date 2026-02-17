@@ -42,9 +42,10 @@ public class SecureToolFunctions(ILogger<SecureToolFunctions> logger, SetupStore
             return badRequest;
         }
 
-        setupStore.RegisterInstall(body.InstallId, body.ToolId);
+        setupStore.RegisterInstall(body.InstallId, body.ToolId, body.BundleInstallId);
 
-        logger.LogInformation("Installed tool {ToolId} with installId {InstallId}", body.ToolId, body.InstallId);
+        logger.LogInformation("Installed tool {ToolId} with installId {InstallId}, bundleInstallId {BundleInstallId}",
+            body.ToolId, body.InstallId, body.BundleInstallId ?? "(none)");
 
         var response = req.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(new InstallResponse { Success = true });

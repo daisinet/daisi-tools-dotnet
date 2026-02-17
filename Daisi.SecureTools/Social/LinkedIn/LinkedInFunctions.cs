@@ -52,7 +52,7 @@ public class LinkedInFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["w_member_social", "openid", "profile"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/linkedin/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/linkedin/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

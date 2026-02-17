@@ -54,7 +54,7 @@ public class InstagramFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["instagram_basic", "instagram_content_publish", "pages_read_engagement", "pages_show_list"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/instagram/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/instagram/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

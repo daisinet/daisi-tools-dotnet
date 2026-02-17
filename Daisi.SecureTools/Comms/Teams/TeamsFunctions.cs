@@ -55,7 +55,7 @@ public class TeamsFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["Chat.ReadWrite", "ChatMessage.Send", "User.Read", "offline_access"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/comms/teams/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/comms/teams/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

@@ -66,7 +66,7 @@ public class Microsoft365Functions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["Mail.Read", "Mail.Send", "Files.Read", "Calendars.ReadWrite", "ChannelMessage.Send", "User.Read", "offline_access"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/m365/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/m365/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>
             {
                 ["prompt"] = "consent"

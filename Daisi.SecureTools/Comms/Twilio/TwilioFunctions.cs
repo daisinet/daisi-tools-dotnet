@@ -1,6 +1,5 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SecureToolProvider.Common;
 using SecureToolProvider.Common.Models;
@@ -17,7 +16,6 @@ namespace Daisi.SecureTools.Comms.Twilio;
 public class TwilioFunctions : SecureToolFunctionBase
 {
     private readonly SocialHttpClient _socialHttpClient;
-    private readonly IConfiguration _configuration;
 
     private static readonly Dictionary<string, Func<ICommsToolExecutor>> ToolMap = new()
     {
@@ -30,12 +28,10 @@ public class TwilioFunctions : SecureToolFunctionBase
         ISetupStore setupStore,
         AuthValidator authValidator,
         SocialHttpClient socialHttpClient,
-        IConfiguration configuration,
         ILogger<TwilioFunctions> logger)
         : base(setupStore, authValidator, logger)
     {
         _socialHttpClient = socialHttpClient;
-        _configuration = configuration;
     }
 
     protected override OAuthHelper? GetOAuthHelper() => null;
@@ -75,8 +71,7 @@ public class TwilioFunctions : SecureToolFunctionBase
         // For email tool, use SendGrid API key
         if (toolId == "daisi-comms-twilio-email")
         {
-            var sendGridApiKey = setup.GetValueOrDefault("sendGridApiKey")
-                ?? _configuration["TwilioSendGridApiKey"];
+            var sendGridApiKey = setup.GetValueOrDefault("sendGridApiKey");
             if (string.IsNullOrEmpty(sendGridApiKey))
             {
                 return new ExecuteResponse
@@ -91,10 +86,8 @@ public class TwilioFunctions : SecureToolFunctionBase
         }
 
         // For SMS and Voice, use Twilio Account SID + Auth Token as Basic auth
-        var accountSid = setup.GetValueOrDefault("accountSid")
-            ?? _configuration["TwilioAccountSid"];
-        var authToken = setup.GetValueOrDefault("authToken")
-            ?? _configuration["TwilioAuthToken"];
+        var accountSid = setup.GetValueOrDefault("accountSid");
+        var authToken = setup.GetValueOrDefault("authToken");
 
         if (string.IsNullOrEmpty(accountSid) || string.IsNullOrEmpty(authToken))
         {

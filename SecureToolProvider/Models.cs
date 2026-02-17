@@ -81,3 +81,22 @@ public class ExecuteResponse
     public string? OutputMessage { get; set; }
     public string? ErrorMessage { get; set; }
 }
+
+/// <summary>
+/// Request body for the POST /auth/status endpoint.
+/// </summary>
+public class AuthStatusRequest
+{
+    public string InstallId { get; set; } = string.Empty;
+    public string Service { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Response body for the POST /auth/status endpoint.
+/// </summary>
+public class AuthStatusResponse
+{
+    public bool Connected { get; set; }
+    public string? ServiceName { get; set; }
+    public string? UserLabel { get; set; }
+}

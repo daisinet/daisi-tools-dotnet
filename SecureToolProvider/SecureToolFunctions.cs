@@ -165,13 +165,28 @@ public class SecureToolFunctions(ILogger<SecureToolFunctions> logger, SetupStore
         }
 
         // --- Your tool logic goes here ---
-        // This example just echoes the parameters and setup keys back.
+        // This example just echoes the parameters, setup keys, and OAuth status back.
         var paramSummary = string.Join(", ", body.Parameters.Select(p => $"{p.Name}={p.Value}"));
         var setupKeys = string.Join(", ", setup.Keys);
 
+        // Check for OAuth connections
+        var oauthInfo = new List<string>();
+        foreach (var key in new[] { "office365", "google", "x" }) // Check common service names
+        {
+            if (setupStore.IsOAuthConnected(body.InstallId, key))
+            {
+                var tokens = setupStore.GetOAuthTokens(body.InstallId, key);
+                oauthInfo.Add($"{key}: connected (expires {tokens?.ExpiresAt:u})");
+            }
+        }
+        var oauthSummary = oauthInfo.Count > 0
+            ? $"\nOAuth connections: {string.Join(", ", oauthInfo)}"
+            : "\nNo OAuth connections";
+
         var output = $"Tool '{body.ToolId}' executed successfully.\n" +
                      $"Parameters: {paramSummary}\n" +
-                     $"Setup keys available: {setupKeys}";
+                     $"Setup keys available: {setupKeys}" +
+                     oauthSummary;
 
         logger.LogInformation("Executed tool {ToolId} for installId {InstallId}", body.ToolId, body.InstallId);
 
@@ -182,6 +197,143 @@ public class SecureToolFunctions(ILogger<SecureToolFunctions> logger, SetupStore
             Output = output,
             OutputFormat = "plaintext",
             OutputMessage = $"Executed {body.ToolId}"
+        });
+        return response;
+    }
+
+    /// <summary>
+    /// GET /api/auth/start
+    /// OAuth initiation endpoint. The Manager UI opens this URL in a popup.
+    /// In production, redirect to the external OAuth provider's consent screen (e.g. Microsoft, Google).
+    /// In this reference implementation, it simulates by redirecting directly to the callback.
+    /// </summary>
+    [Function("auth-start")]
+    public HttpResponseData AuthStart(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auth/start")] HttpRequestData req)
+    {
+        var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
+        var installId = query["installId"] ?? string.Empty;
+        var returnUrl = query["returnUrl"] ?? string.Empty;
+        var service = query["service"] ?? string.Empty;
+
+        if (string.IsNullOrEmpty(installId) || string.IsNullOrEmpty(returnUrl))
+        {
+            var badRequest = req.CreateResponse(HttpStatusCode.BadRequest);
+            badRequest.WriteString("Missing installId or returnUrl query parameters.");
+            return badRequest;
+        }
+
+        // Encode state for the callback
+        var state = Convert.ToBase64String(
+            System.Text.Encoding.UTF8.GetBytes(
+                JsonSerializer.Serialize(new { installId, returnUrl, service })));
+
+        // In production: redirect to the external provider's OAuth consent URL, e.g.:
+        //   https://login.microsoftonline.com/.../oauth2/v2.0/authorize?client_id=...&redirect_uri=...&state={state}
+        // In this reference implementation, simulate by going directly to our own callback with a fake code.
+        var callbackUrl = $"{req.Url.GetLeftPart(UriPartial.Authority)}/api/auth/callback?code=simulated-auth-code&state={Uri.EscapeDataString(state)}";
+
+        logger.LogInformation("OAuth start for installId {InstallId}, service {Service} — redirecting to callback", installId, service);
+
+        var response = req.CreateResponse(HttpStatusCode.Redirect);
+        response.Headers.Add("Location", callbackUrl);
+        return response;
+    }
+
+    /// <summary>
+    /// GET /api/auth/callback
+    /// OAuth callback endpoint. The external OAuth provider redirects here after user consent.
+    /// Exchanges the authorization code for tokens and stores them.
+    /// </summary>
+    [Function("auth-callback")]
+    public HttpResponseData AuthCallback(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auth/callback")] HttpRequestData req)
+    {
+        var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
+        var code = query["code"] ?? string.Empty;
+        var stateEncoded = query["state"] ?? string.Empty;
+
+        if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(stateEncoded))
+        {
+            var badRequest = req.CreateResponse(HttpStatusCode.BadRequest);
+            badRequest.WriteString("Missing code or state query parameters.");
+            return badRequest;
+        }
+
+        // Decode the state to recover installId, returnUrl, service
+        string installId, returnUrl, service;
+        try
+        {
+            var stateJson = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(stateEncoded));
+            var stateObj = JsonSerializer.Deserialize<JsonElement>(stateJson);
+            installId = stateObj.GetProperty("installId").GetString() ?? string.Empty;
+            returnUrl = stateObj.GetProperty("returnUrl").GetString() ?? string.Empty;
+            service = stateObj.GetProperty("service").GetString() ?? string.Empty;
+        }
+        catch
+        {
+            var badRequest = req.CreateResponse(HttpStatusCode.BadRequest);
+            badRequest.WriteString("Invalid state parameter.");
+            return badRequest;
+        }
+
+        if (!setupStore.IsInstalled(installId))
+        {
+            var forbidden = req.CreateResponse(HttpStatusCode.Forbidden);
+            forbidden.WriteString("Unknown installation.");
+            return forbidden;
+        }
+
+        // In production: exchange the `code` for tokens using the provider's token endpoint
+        // and your client_id + client_secret. For this reference impl, simulate tokens.
+        var accessToken = $"simulated-access-token-{Guid.NewGuid():N}";
+        var refreshToken = $"simulated-refresh-token-{Guid.NewGuid():N}";
+        var expiresAt = DateTime.UtcNow.AddHours(1);
+
+        setupStore.SaveOAuthTokens(installId, service, accessToken, refreshToken, expiresAt);
+
+        logger.LogInformation("OAuth callback: stored tokens for installId {InstallId}, service {Service}", installId, service);
+
+        // Redirect the popup back to the Manager's OAuthCallback page
+        var response = req.CreateResponse(HttpStatusCode.Redirect);
+        response.Headers.Add("Location", returnUrl);
+        return response;
+    }
+
+    /// <summary>
+    /// POST /api/auth/status
+    /// Checks if an OAuth connection is active for a given installation and service.
+    /// Called by the Manager UI to show connection status.
+    /// </summary>
+    [Function("auth-status")]
+    public async Task<HttpResponseData> AuthStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth/status")] HttpRequestData req)
+    {
+        var body = await JsonSerializer.DeserializeAsync<AuthStatusRequest>(req.Body,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (body is null || string.IsNullOrEmpty(body.InstallId))
+        {
+            var badRequest = req.CreateResponse(HttpStatusCode.BadRequest);
+            await badRequest.WriteAsJsonAsync(new AuthStatusResponse { Connected = false });
+            return badRequest;
+        }
+
+        if (!setupStore.IsInstalled(body.InstallId))
+        {
+            var forbidden = req.CreateResponse(HttpStatusCode.Forbidden);
+            await forbidden.WriteAsJsonAsync(new AuthStatusResponse { Connected = false });
+            return forbidden;
+        }
+
+        var connected = setupStore.IsOAuthConnected(body.InstallId, body.Service);
+
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(new AuthStatusResponse
+        {
+            Connected = connected,
+            ServiceName = body.Service,
+            UserLabel = connected ? "Connected" : null
         });
         return response;
     }

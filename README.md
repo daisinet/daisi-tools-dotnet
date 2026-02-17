@@ -341,37 +341,22 @@ cd Daisi.SecureTools
 func azure functionapp publish <app-name> --build remote
 ```
 
-Required app settings:
+Required app settings — see [Provider Setup Guide](marketplace/docs/setup.md) for step-by-step instructions on obtaining each credential:
 
-| Setting | Description |
-|---------|-------------|
-| `DaisiAuthKey` | Shared secret for ORC authentication |
-| `GoogleClientId` | Google OAuth client ID |
-| `GoogleClientSecret` | Google OAuth client secret |
-| `MicrosoftClientId` | Microsoft OAuth client ID |
-| `MicrosoftClientSecret` | Microsoft OAuth client secret |
-| `MicrosoftTenantId` | Azure AD tenant ID (default: `common`) |
-| `XClientId` | X (Twitter) OAuth client ID |
-| `XClientSecret` | X (Twitter) OAuth client secret |
-| `FacebookClientId` | Facebook OAuth app ID |
-| `FacebookClientSecret` | Facebook OAuth app secret |
-| `RedditClientId` | Reddit OAuth client ID |
-| `RedditClientSecret` | Reddit OAuth client secret |
-| `LinkedInClientId` | LinkedIn OAuth client ID |
-| `LinkedInClientSecret` | LinkedIn OAuth client secret |
-| `InstagramClientId` | Instagram (Facebook Login) app ID |
-| `InstagramClientSecret` | Instagram (Facebook Login) app secret |
-| `TikTokClientKey` | TikTok OAuth client key |
-| `TikTokClientSecret` | TikTok OAuth client secret |
-| `TwilioAccountSid` | Twilio Account SID (optional — can be user-configured) |
-| `TwilioAuthToken` | Twilio Auth Token (optional — can be user-configured) |
-| `TwilioSendGridApiKey` | SendGrid API key for email (optional — can be user-configured) |
-| `WhatsAppClientId` | WhatsApp (Meta) OAuth app ID |
-| `WhatsAppClientSecret` | WhatsApp (Meta) OAuth app secret |
-| `XDmClientId` | X DMs OAuth client ID |
-| `XDmClientSecret` | X DMs OAuth client secret |
-| `TeamsClientId` | Teams OAuth client ID |
-| `TeamsClientSecret` | Teams OAuth client secret |
-| `TeamsTenantId` | Teams Azure AD tenant ID (default: `common`) |
-| `SlackClientId` | Slack OAuth client ID |
-| `SlackClientSecret` | Slack OAuth client secret |
+| Setting | Description | Setup Guide |
+|---------|-------------|-------------|
+| `DaisiAuthKey` | Shared secret for ORC authentication | — |
+| `GoogleClientId` / `GoogleClientSecret` | Google OAuth credentials | [Guide](marketplace/docs/google-setup.md) |
+| `MicrosoftClientId` / `MicrosoftClientSecret` / `MicrosoftTenantId` | Microsoft 365 OAuth credentials | [Guide](marketplace/docs/microsoft365-setup.md) |
+| `XClientId` / `XClientSecret` | X (Twitter) posting OAuth credentials | [Guide](marketplace/docs/x-twitter-setup.md) |
+| `FacebookClientId` / `FacebookClientSecret` | Facebook OAuth credentials | [Guide](marketplace/docs/facebook-setup.md) |
+| `InstagramClientId` / `InstagramClientSecret` | Instagram OAuth credentials | [Guide](marketplace/docs/instagram-setup.md) |
+| `LinkedInClientId` / `LinkedInClientSecret` | LinkedIn OAuth credentials | [Guide](marketplace/docs/linkedin-setup.md) |
+| `RedditClientId` / `RedditClientSecret` | Reddit OAuth credentials | [Guide](marketplace/docs/reddit-setup.md) |
+| `TikTokClientKey` / `TikTokClientSecret` | TikTok OAuth credentials | [Guide](marketplace/docs/tiktok-setup.md) |
+| `SlackClientId` / `SlackClientSecret` | Slack OAuth credentials | [Guide](marketplace/docs/slack-setup.md) |
+| `TeamsClientId` / `TeamsClientSecret` / `TeamsTenantId` | Teams OAuth credentials | [Guide](marketplace/docs/teams-setup.md) |
+| `WhatsAppClientId` / `WhatsAppClientSecret` | WhatsApp OAuth credentials | [Guide](marketplace/docs/whatsapp-setup.md) |
+| `XDmClientId` / `XDmClientSecret` | X DMs OAuth credentials | [Guide](marketplace/docs/xdm-setup.md) |
+
+User-configured providers (no app settings needed): [Twilio](marketplace/docs/twilio-setup.md), [Telegram](marketplace/docs/telegram-setup.md), [Firecrawl](marketplace/docs/firecrawl-setup.md)

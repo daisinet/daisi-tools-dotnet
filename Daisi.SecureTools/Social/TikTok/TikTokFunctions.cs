@@ -53,7 +53,7 @@ public class TikTokFunctions : SecureToolFunctionBase
             ClientId = clientKey,
             ClientSecret = clientSecret,
             Scopes = ["video.upload", "video.publish", "user.info.basic"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/tiktok/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/tiktok/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

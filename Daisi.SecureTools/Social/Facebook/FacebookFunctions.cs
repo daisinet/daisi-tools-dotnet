@@ -52,7 +52,7 @@ public class FacebookFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["pages_manage_posts", "pages_read_engagement", "pages_show_list"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/facebook/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/facebook/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

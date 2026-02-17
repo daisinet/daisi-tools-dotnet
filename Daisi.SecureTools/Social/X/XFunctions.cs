@@ -52,7 +52,7 @@ public class XFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["tweet.read", "tweet.write", "users.read", "media.write", "offline.access"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/x/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/x/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

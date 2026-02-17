@@ -52,7 +52,7 @@ public class RedditFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["submit", "identity"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/reddit/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/reddit/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>
             {
                 ["duration"] = "permanent"

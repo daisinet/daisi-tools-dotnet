@@ -54,7 +54,7 @@ public class SlackFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["chat:write", "chat:write.public", "files:write"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/comms/slack/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/comms/slack/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

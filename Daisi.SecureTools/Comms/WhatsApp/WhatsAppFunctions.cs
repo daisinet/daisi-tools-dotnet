@@ -54,7 +54,7 @@ public class WhatsAppFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["whatsapp_business_management", "whatsapp_business_messaging"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/comms/whatsapp/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/comms/whatsapp/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

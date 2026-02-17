@@ -71,7 +71,7 @@ public class GoogleFunctions : SecureToolFunctionBase
                 "https://www.googleapis.com/auth/calendar.events",
                 "https://www.googleapis.com/auth/spreadsheets"
             ],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/google/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/google/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>
             {
                 ["access_type"] = "offline",

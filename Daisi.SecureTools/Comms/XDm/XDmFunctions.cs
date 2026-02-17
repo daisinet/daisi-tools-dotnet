@@ -54,7 +54,7 @@ public class XDmFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["dm.read", "dm.write", "users.read", "offline.access"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/comms/xdm/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/comms/xdm/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 

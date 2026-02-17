@@ -95,7 +95,7 @@ def build_tool_definition(tool_def):
 def try_read_existing(container, item_id, partition_key):
     """Try to read an existing item, return None if not found."""
     try:
-        return container.read_item(item_id, partition_key=partition_key)
+        return container.read_item(item_id, partition_key)
     except CosmosResourceNotFoundError:
         return None
 
@@ -251,7 +251,7 @@ def main():
             item = merge_with_existing(item, existing)
             item["UpdatedAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-            container.upsert_item(item, partition_key=account_id)
+            container.upsert_item(item)
 
             action = "updated" if existing else "created"
             print(f"  {action}: {tool_id} ({tool_def['name']})")
@@ -279,7 +279,7 @@ def main():
             item = merge_with_existing(item, existing)
             item["UpdatedAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-            container.upsert_item(item, partition_key=account_id)
+            container.upsert_item(item)
 
             action = "updated" if existing else "created"
             print(f"  {action}: {plugin_id} ({plugin_def['name']})")

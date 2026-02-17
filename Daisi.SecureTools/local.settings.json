@@ -1,0 +1,13 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "DaisiAuthKey": "your-shared-secret-here",
+    "GoogleClientId": "",
+    "GoogleClientSecret": "",
+    "MicrosoftClientId": "",
+    "MicrosoftClientSecret": "",
+    "MicrosoftTenantId": "common"
+  }
+}

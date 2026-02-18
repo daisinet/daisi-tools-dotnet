@@ -53,7 +53,13 @@ public abstract class SecureToolFunctionBase
                 new InstallResponse { Success = false, Error = "Invalid request body" });
 
         await SetupStore.RegisterInstallAsync(body.InstallId, body.ToolId);
-        Logger.LogInformation("Installed tool {ToolId} with installId {InstallId}", body.ToolId, body.InstallId);
+
+        // Also register the BundleInstallId so OAuth can be shared across bundled tools
+        if (!string.IsNullOrEmpty(body.BundleInstallId))
+            await SetupStore.RegisterInstallAsync(body.BundleInstallId, $"bundle:{body.ToolId}");
+
+        Logger.LogInformation("Installed tool {ToolId} with installId {InstallId}, bundleInstallId {BundleInstallId}",
+            body.ToolId, body.InstallId, body.BundleInstallId ?? "(none)");
 
         return await CreateJsonResponse(req, HttpStatusCode.OK, new InstallResponse { Success = true });
     }

@@ -7,6 +7,7 @@ public class InstallRequest
 {
     public string InstallId { get; set; } = string.Empty;
     public string ToolId { get; set; } = string.Empty;
+    public string? BundleInstallId { get; set; }
 }
 
 /// <summary>

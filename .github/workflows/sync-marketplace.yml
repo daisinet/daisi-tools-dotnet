@@ -12,7 +12,6 @@ jobs:
   sync:
     name: Sync to Cosmos DB (${{ github.ref_name }})
     runs-on: ubuntu-latest
-    environment: marketplace-sync
     permissions:
       id-token: write
       contents: read

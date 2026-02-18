@@ -1,5 +1,6 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SecureToolProvider.Common;
 using SecureToolProvider.Common.Models;
@@ -28,8 +29,10 @@ public class TwilioFunctions : SecureToolFunctionBase
         ISetupStore setupStore,
         AuthValidator authValidator,
         SocialHttpClient socialHttpClient,
+        IHttpClientFactory httpClientFactory,
+        IConfiguration configuration,
         ILogger<TwilioFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
     }

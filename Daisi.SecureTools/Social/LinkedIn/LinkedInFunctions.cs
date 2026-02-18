@@ -30,7 +30,7 @@ public class LinkedInFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<LinkedInFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;

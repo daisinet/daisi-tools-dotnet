@@ -32,7 +32,7 @@ public class WhatsAppFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<WhatsAppFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;

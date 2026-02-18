@@ -30,7 +30,7 @@ public class RedditFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<RedditFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;

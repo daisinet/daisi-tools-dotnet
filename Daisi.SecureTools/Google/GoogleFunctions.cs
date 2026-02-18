@@ -39,7 +39,7 @@ public class GoogleFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<GoogleFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _serviceFactory = serviceFactory;
         _configuration = configuration;

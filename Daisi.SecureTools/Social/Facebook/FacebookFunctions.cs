@@ -30,7 +30,7 @@ public class FacebookFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<FacebookFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;

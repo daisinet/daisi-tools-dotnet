@@ -39,7 +39,7 @@ public class Microsoft365Functions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<Microsoft365Functions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _graphClientFactory = graphClientFactory;
         _configuration = configuration;

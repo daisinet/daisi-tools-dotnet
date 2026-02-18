@@ -1,5 +1,6 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SecureToolProvider.Common;
 using SecureToolProvider.Common.Models;
@@ -29,8 +30,10 @@ public class FirecrawlFunctions : SecureToolFunctionBase
         ISetupStore setupStore,
         AuthValidator authValidator,
         FirecrawlClient firecrawlClient,
+        IHttpClientFactory httpClientFactory,
+        IConfiguration configuration,
         ILogger<FirecrawlFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _firecrawlClient = firecrawlClient;
     }

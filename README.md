@@ -168,9 +168,22 @@ Production-grade shared library used by all secure tool integrations. Provides:
 
 - **`ISetupStore` / `InMemorySetupStore` / `PersistentSetupStore`** — Installation state and credential storage. In-memory for local dev, Azure Table Storage for production.
 - **`OAuthHelper`** — OAuth 2.0 authorization code flow with PKCE. Generic across providers — parameterized by authorize URL, token URL, client ID, client secret, and scopes.
-- **`SecureToolFunctionBase`** — Base class for Azure Functions with standard endpoints (install, uninstall, configure, execute, auth/start, auth/callback, auth/status). Subclasses only implement `ExecuteToolAsync()`.
-- **`AuthValidator`** — Shared `X-Daisi-Auth` and `installId` validation.
-- **`Models/`** — Request/response DTOs, OAuth config, and token models.
+- **`SecureToolFunctionBase`** — Base class for Azure Functions with standard endpoints (install, uninstall, configure, execute, auth/start, auth/callback, auth/status). Subclasses only implement `ExecuteToolAsync()`. Now requires `IHttpClientFactory` and `IConfiguration` in the constructor to support ORC validation callbacks.
+- **`AuthValidator`** — Shared `X-Daisi-Auth` and `installId` validation. Includes `GetAuthKey()` method for outbound ORC calls (used when the provider calls back to the ORC for session validation).
+- **`Models/`** — Request/response DTOs, OAuth config, and token models. Includes `OrcValidationResponse` (`{ valid, installId, bundleInstallId }`) for the ORC session validation response.
+
+### ORC Validation Callback
+
+The `/execute` endpoint no longer trusts the caller to provide an `installId`. Instead, the request body contains a `sessionId`, and the provider validates it by calling the ORC:
+
+```
+POST {OrcValidationUrl}/api/secure-tools/validate
+Headers: X-Daisi-Auth: <shared secret>
+Body: { "sessionId": "...", "toolId": "..." }
+Response: { "valid": true, "installId": "...", "bundleInstallId": "..." }
+```
+
+The `OrcValidationUrl` app setting must be configured with the ORC's base URL (e.g. `https://orc.daisinet.com`). The provider uses the returned `installId` to look up setup data and credentials, ensuring that only active sessions with valid tool installations can trigger execution.
 
 ## SecureToolProvider (Reference Implementation)
 
@@ -195,7 +208,8 @@ When tools are bundled in a Plugin, the ORC sends a shared `bundleInstallId` dur
 
 **Authentication model:**
 - `/install` and `/uninstall` are ORC-originated — verified via `X-Daisi-Auth` shared secret
-- `/configure` and `/execute` are consumer-originated — verified by checking that the `installId` was registered via `/install`. The `installId` is an opaque, unguessable identifier that serves as a bearer token.
+- `/configure` is consumer-originated — verified by checking that the `installId` was registered via `/install`. The `installId` is an opaque, unguessable identifier that serves as a bearer token.
+- `/execute` now receives `sessionId` (instead of `installId`) in the request body (`ExecuteRequest` model). Every execution is validated through the ORC: the provider calls `POST {OrcValidationUrl}/api/secure-tools/validate` with `{ sessionId, toolId }` and the `X-Daisi-Auth` header. The ORC returns `{ valid, installId, bundleInstallId }` — the provider uses the returned `installId` to look up setup data and credentials. This ensures the consumer actually has an active session with the tool installed, without exposing `installId` to the host or consumer.
 
 **To use as a starting point:**
 1. Clone the `SecureToolProvider` directory
@@ -346,6 +360,7 @@ Required app settings — see [Provider Setup Guide](marketplace/docs/setup.md) 
 | Setting | Description | Setup Guide |
 |---------|-------------|-------------|
 | `DaisiAuthKey` | Shared secret for ORC authentication | — |
+| `OrcValidationUrl` | ORC base URL for session validation callbacks (e.g. `https://orc.daisinet.com`) | — |
 | `GoogleClientId` / `GoogleClientSecret` | Google OAuth credentials | [Guide](marketplace/docs/google-setup.md) |
 | `MicrosoftClientId` / `MicrosoftClientSecret` / `MicrosoftTenantId` | Microsoft 365 OAuth credentials | [Guide](marketplace/docs/microsoft365-setup.md) |
 | `XClientId` / `XClientSecret` | X (Twitter) posting OAuth credentials | [Guide](marketplace/docs/x-twitter-setup.md) |

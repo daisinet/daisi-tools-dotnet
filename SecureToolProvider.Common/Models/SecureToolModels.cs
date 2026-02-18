@@ -56,12 +56,24 @@ public class ConfigureResponse
 
 /// <summary>
 /// Request body for the /execute endpoint (called directly by consumer hosts).
+/// Contains a SessionId that is validated against the ORC on every call.
 /// </summary>
 public class ExecuteRequest
 {
-    public string InstallId { get; set; } = string.Empty;
+    public string SessionId { get; set; } = string.Empty;
     public string ToolId { get; set; } = string.Empty;
     public List<ParameterValue> Parameters { get; set; } = [];
+}
+
+/// <summary>
+/// Response from ORC validation endpoint.
+/// </summary>
+public class OrcValidationResponse
+{
+    public bool Valid { get; set; }
+    public string InstallId { get; set; } = string.Empty;
+    public string BundleInstallId { get; set; } = string.Empty;
+    public string Error { get; set; } = string.Empty;
 }
 
 /// <summary>

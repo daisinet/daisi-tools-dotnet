@@ -51,6 +51,11 @@ public class TwilioFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/twilio/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("comms-twilio-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/twilio/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("comms-twilio-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/twilio/execute")] HttpRequestData req)

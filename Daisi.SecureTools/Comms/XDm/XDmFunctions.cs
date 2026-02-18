@@ -77,6 +77,11 @@ public class XDmFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/xdm/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("comms-xdm-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/xdm/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("comms-xdm-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/xdm/execute")] HttpRequestData req)

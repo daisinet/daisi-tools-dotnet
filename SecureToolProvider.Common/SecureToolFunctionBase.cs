@@ -261,6 +261,33 @@ public abstract class SecureToolFunctionBase
     }
 
     /// <summary>
+    /// POST /api/configure/status — Check if setup data exists for an installation.
+    /// Returns which keys are configured without revealing their values.
+    /// </summary>
+    protected async Task<HttpResponseData> HandleConfigureStatusAsync(HttpRequestData req)
+    {
+        var body = await DeserializeAsync<ConfigureStatusRequest>(req);
+        if (body is null || string.IsNullOrEmpty(body.InstallId))
+            return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
+                new ConfigureStatusResponse { Success = false, Error = "Invalid request body" });
+
+        if (!await SetupStore.IsInstalledAsync(body.InstallId))
+            return await CreateJsonResponse(req, HttpStatusCode.Forbidden,
+                new ConfigureStatusResponse { Success = false, Error = "Unknown installation." });
+
+        var setup = await SetupStore.GetSetupAsync(body.InstallId);
+
+        // Return only user-provided keys (exclude OAuth internal keys)
+        var configuredKeys = setup?.Keys
+            .Where(k => !k.EndsWith("_access_token") && !k.EndsWith("_refresh_token")
+                        && !k.EndsWith("_expires_at") && !k.EndsWith("_authenticated"))
+            .ToList() ?? [];
+
+        return await CreateJsonResponse(req, HttpStatusCode.OK,
+            new ConfigureStatusResponse { Success = true, IsConfigured = configuredKeys.Count > 0, ConfiguredKeys = configuredKeys });
+    }
+
+    /// <summary>
     /// POST /api/auth/status — Check if OAuth is complete for an installation.
     /// </summary>
     protected async Task<HttpResponseData> HandleAuthStatusAsync(HttpRequestData req)

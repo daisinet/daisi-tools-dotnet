@@ -98,6 +98,11 @@ public class GoogleFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "google/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("google-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "google/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("google-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "google/execute")] HttpRequestData req)

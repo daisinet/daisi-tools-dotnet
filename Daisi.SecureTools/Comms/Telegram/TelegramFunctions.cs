@@ -52,6 +52,11 @@ public class TelegramFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/telegram/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("comms-telegram-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/telegram/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("comms-telegram-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/telegram/execute")] HttpRequestData req)

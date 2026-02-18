@@ -30,7 +30,7 @@ public class XFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<XFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -52,7 +52,7 @@ public class XFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["tweet.read", "tweet.write", "users.read", "media.write", "offline.access"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/x/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/x/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -75,6 +75,11 @@ public class XFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/x/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-x-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/x/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-x-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/x/execute")] HttpRequestData req)
@@ -82,7 +87,7 @@ public class XFunctions : SecureToolFunctionBase
 
     [Function("social-x-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/x/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/x/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-x-auth-callback")]

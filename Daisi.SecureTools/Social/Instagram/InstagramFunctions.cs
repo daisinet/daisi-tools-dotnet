@@ -31,7 +31,7 @@ public class InstagramFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<InstagramFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -54,7 +54,7 @@ public class InstagramFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["instagram_basic", "instagram_content_publish", "pages_read_engagement", "pages_show_list"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/instagram/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/instagram/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -77,6 +77,11 @@ public class InstagramFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/instagram/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-instagram-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/instagram/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-instagram-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/instagram/execute")] HttpRequestData req)
@@ -84,7 +89,7 @@ public class InstagramFunctions : SecureToolFunctionBase
 
     [Function("social-instagram-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/instagram/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/instagram/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-instagram-auth-callback")]

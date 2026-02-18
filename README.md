@@ -168,9 +168,22 @@ Production-grade shared library used by all secure tool integrations. Provides:
 
 - **`ISetupStore` / `InMemorySetupStore` / `PersistentSetupStore`** — Installation state and credential storage. In-memory for local dev, Azure Table Storage for production.
 - **`OAuthHelper`** — OAuth 2.0 authorization code flow with PKCE. Generic across providers — parameterized by authorize URL, token URL, client ID, client secret, and scopes.
-- **`SecureToolFunctionBase`** — Base class for Azure Functions with standard endpoints (install, uninstall, configure, execute, auth/start, auth/callback, auth/status). Subclasses only implement `ExecuteToolAsync()`.
-- **`AuthValidator`** — Shared `X-Daisi-Auth` and `installId` validation.
-- **`Models/`** — Request/response DTOs, OAuth config, and token models.
+- **`SecureToolFunctionBase`** — Base class for Azure Functions with standard endpoints (install, uninstall, configure, execute, auth/start, auth/callback, auth/status). Subclasses only implement `ExecuteToolAsync()`. Now requires `IHttpClientFactory` and `IConfiguration` in the constructor to support ORC validation callbacks.
+- **`AuthValidator`** — Shared `X-Daisi-Auth` and `installId` validation. Includes `GetAuthKey()` method for outbound ORC calls (used when the provider calls back to the ORC for session validation).
+- **`Models/`** — Request/response DTOs, OAuth config, and token models. Includes `OrcValidationResponse` (`{ valid, installId, bundleInstallId }`) for the ORC session validation response.
+
+### ORC Validation Callback
+
+The `/execute` endpoint no longer trusts the caller to provide an `installId`. Instead, the request body contains a `sessionId`, and the provider validates it by calling the ORC:
+
+```
+POST {OrcValidationUrl}/api/secure-tools/validate
+Headers: X-Daisi-Auth: <shared secret>
+Body: { "sessionId": "...", "toolId": "..." }
+Response: { "valid": true, "installId": "...", "bundleInstallId": "..." }
+```
+
+The `OrcValidationUrl` app setting must be configured with the ORC's base URL (e.g. `https://orc.daisinet.com`). The provider uses the returned `installId` to look up setup data and credentials, ensuring that only active sessions with valid tool installations can trigger execution.
 
 ## SecureToolProvider (Reference Implementation)
 
@@ -195,7 +208,8 @@ When tools are bundled in a Plugin, the ORC sends a shared `bundleInstallId` dur
 
 **Authentication model:**
 - `/install` and `/uninstall` are ORC-originated — verified via `X-Daisi-Auth` shared secret
-- `/configure` and `/execute` are consumer-originated — verified by checking that the `installId` was registered via `/install`. The `installId` is an opaque, unguessable identifier that serves as a bearer token.
+- `/configure` is consumer-originated — verified by checking that the `installId` was registered via `/install`. The `installId` is an opaque, unguessable identifier that serves as a bearer token.
+- `/execute` now receives `sessionId` (instead of `installId`) in the request body (`ExecuteRequest` model). Every execution is validated through the ORC: the provider calls `POST {OrcValidationUrl}/api/secure-tools/validate` with `{ sessionId, toolId }` and the `X-Daisi-Auth` header. The ORC returns `{ valid, installId, bundleInstallId }` — the provider uses the returned `installId` to look up setup data and credentials. This ensures the consumer actually has an active session with the tool installed, without exposing `installId` to the host or consumer.
 
 **To use as a starting point:**
 1. Clone the `SecureToolProvider` directory
@@ -248,8 +262,79 @@ daisi-tools-dotnet/
 │       ├── Teams/                            #     Routes: /api/comms/teams/*
 │       └── Slack/                            #     Routes: /api/comms/slack/*
 ├── Daisi.SecureTools.Tests/                 # Consolidated secure tools tests
+├── marketplace/                             # Marketplace pipeline
+│   ├── catalog.json                         #   Declarative tool/plugin catalog
+│   └── sync-marketplace.py                  #   Cosmos DB sync script
+├── .github/workflows/
+│   └── sync-marketplace.yml                 #   CI/CD workflow for marketplace sync
 └── Daisi.Tools.sln                          # Solution file
 ```
+
+## Marketplace Pipeline
+
+The `marketplace/` directory contains an automated CI/CD pipeline that syncs first-party tools and plugins to the Cosmos DB marketplace on every push to `dev` or `main`.
+
+### How It Works
+
+```
+marketplace/catalog.json  →  sync-marketplace.py  →  GitHub Actions workflow
+      (source of truth)        (upsert to Cosmos)      (trigger on dev/main push)
+```
+
+1. **`marketplace/catalog.json`** — Declarative source of truth for all 38 first-party tools and 3 plugins. Defines providers, tools, and plugin bundles with full metadata (parameters, descriptions, tags, setup requirements).
+2. **`marketplace/sync-marketplace.py`** — Python script that reads the catalog and upserts `MarketplaceItem` documents to Cosmos DB using `azure-cosmos` + `azure-identity` (OIDC via `DefaultAzureCredential`).
+3. **`.github/workflows/sync-marketplace.yml`** — GitHub Actions workflow triggered on pushes to `dev` or `main` that touch `marketplace/` or `Daisi.SecureTools/`. Also supports manual `workflow_dispatch`.
+
+### Branch → Environment Mapping
+
+| Branch | GitHub Environment | Target Database |
+|--------|-------------------|-----------------|
+| `dev`  | `development`     | Dev Cosmos DB   |
+| `main` | `production`      | Prod Cosmos DB  |
+
+### Catalog Structure
+
+The catalog defines three sections:
+
+- **Providers** (15) — Route prefixes and setup parameters (OAuth or API key) for each tool provider
+- **Tools** (38) — Individual tool definitions with ID, name, description, tags, parameters, and AI use instructions
+- **Plugins** (3) — Bundles that group tools sharing a single OAuth flow: Google Workspace (10 tools), Microsoft 365 (9 tools), Firecrawl (5 tools)
+
+### Adding a New Tool
+
+1. Add the tool implementation under `Daisi.SecureTools/`
+2. Add a provider entry to `catalog.json` if the provider is new
+3. Add the tool entry to the `tools` array in `catalog.json` with all metadata
+4. If the tool belongs to an existing plugin, add its `toolId` to the plugin's `toolIds` array
+5. Push to `dev` — the pipeline will automatically create the marketplace item in the dev database
+
+### Required GitHub Repository Secrets
+
+Shared secrets (same for dev and prod):
+
+| Secret | Purpose |
+|--------|---------|
+| `AZURE_CLIENT_ID` | OIDC federated credential for Azure login |
+| `AZURE_TENANT_ID` | Azure AD tenant |
+| `AZURE_SUBSCRIPTION_ID` | Azure subscription |
+| `DAISI_ACCOUNT_ID` | System account ID for first-party tools |
+
+Per-environment secrets (prefixed `DEV_` / `PROD_`):
+
+| Secret | Purpose |
+|--------|---------|
+| `DEV_COSMOSDB_ACCOUNT_NAME` | Dev Cosmos DB account name |
+| `DEV_COSMOSDB_DATABASE_NAME` | Dev database name |
+| `DEV_SECURE_ENDPOINT_URL` | Dev Azure Functions base URL |
+| `DEV_SECURE_AUTH_KEY` | Dev shared secret for X-Daisi-Auth |
+| `PROD_COSMOSDB_ACCOUNT_NAME` | Prod Cosmos DB account name |
+| `PROD_COSMOSDB_DATABASE_NAME` | Prod database name |
+| `PROD_SECURE_ENDPOINT_URL` | Prod Azure Functions base URL |
+| `PROD_SECURE_AUTH_KEY` | Prod shared secret for X-Daisi-Auth |
+
+### Idempotency
+
+The sync script uses `upsert_item()` and preserves existing metrics (download counts, ratings, featured status) from previously synced items. It is safe to run repeatedly — the same catalog produces the same documents.
 
 ## Running Tests
 
@@ -270,37 +355,23 @@ cd Daisi.SecureTools
 func azure functionapp publish <app-name> --build remote
 ```
 
-Required app settings:
+Required app settings — see [Provider Setup Guide](marketplace/docs/setup.md) for step-by-step instructions on obtaining each credential:
 
-| Setting | Description |
-|---------|-------------|
-| `DaisiAuthKey` | Shared secret for ORC authentication |
-| `GoogleClientId` | Google OAuth client ID |
-| `GoogleClientSecret` | Google OAuth client secret |
-| `MicrosoftClientId` | Microsoft OAuth client ID |
-| `MicrosoftClientSecret` | Microsoft OAuth client secret |
-| `MicrosoftTenantId` | Azure AD tenant ID (default: `common`) |
-| `XClientId` | X (Twitter) OAuth client ID |
-| `XClientSecret` | X (Twitter) OAuth client secret |
-| `FacebookClientId` | Facebook OAuth app ID |
-| `FacebookClientSecret` | Facebook OAuth app secret |
-| `RedditClientId` | Reddit OAuth client ID |
-| `RedditClientSecret` | Reddit OAuth client secret |
-| `LinkedInClientId` | LinkedIn OAuth client ID |
-| `LinkedInClientSecret` | LinkedIn OAuth client secret |
-| `InstagramClientId` | Instagram (Facebook Login) app ID |
-| `InstagramClientSecret` | Instagram (Facebook Login) app secret |
-| `TikTokClientKey` | TikTok OAuth client key |
-| `TikTokClientSecret` | TikTok OAuth client secret |
-| `TwilioAccountSid` | Twilio Account SID (optional — can be user-configured) |
-| `TwilioAuthToken` | Twilio Auth Token (optional — can be user-configured) |
-| `TwilioSendGridApiKey` | SendGrid API key for email (optional — can be user-configured) |
-| `WhatsAppClientId` | WhatsApp (Meta) OAuth app ID |
-| `WhatsAppClientSecret` | WhatsApp (Meta) OAuth app secret |
-| `XDmClientId` | X DMs OAuth client ID |
-| `XDmClientSecret` | X DMs OAuth client secret |
-| `TeamsClientId` | Teams OAuth client ID |
-| `TeamsClientSecret` | Teams OAuth client secret |
-| `TeamsTenantId` | Teams Azure AD tenant ID (default: `common`) |
-| `SlackClientId` | Slack OAuth client ID |
-| `SlackClientSecret` | Slack OAuth client secret |
+| Setting | Description | Setup Guide |
+|---------|-------------|-------------|
+| `DaisiAuthKey` | Shared secret for ORC authentication | — |
+| `OrcValidationUrl` | ORC base URL for session validation callbacks (e.g. `https://orc.daisinet.com`) | — |
+| `GoogleClientId` / `GoogleClientSecret` | Google OAuth credentials | [Guide](marketplace/docs/google-setup.md) |
+| `MicrosoftClientId` / `MicrosoftClientSecret` / `MicrosoftTenantId` | Microsoft 365 OAuth credentials | [Guide](marketplace/docs/microsoft365-setup.md) |
+| `XClientId` / `XClientSecret` | X (Twitter) posting OAuth credentials | [Guide](marketplace/docs/x-twitter-setup.md) |
+| `FacebookClientId` / `FacebookClientSecret` | Facebook OAuth credentials | [Guide](marketplace/docs/facebook-setup.md) |
+| `InstagramClientId` / `InstagramClientSecret` | Instagram OAuth credentials | [Guide](marketplace/docs/instagram-setup.md) |
+| `LinkedInClientId` / `LinkedInClientSecret` | LinkedIn OAuth credentials | [Guide](marketplace/docs/linkedin-setup.md) |
+| `RedditClientId` / `RedditClientSecret` | Reddit OAuth credentials | [Guide](marketplace/docs/reddit-setup.md) |
+| `TikTokClientKey` / `TikTokClientSecret` | TikTok OAuth credentials | [Guide](marketplace/docs/tiktok-setup.md) |
+| `SlackClientId` / `SlackClientSecret` | Slack OAuth credentials | [Guide](marketplace/docs/slack-setup.md) |
+| `TeamsClientId` / `TeamsClientSecret` / `TeamsTenantId` | Teams OAuth credentials | [Guide](marketplace/docs/teams-setup.md) |
+| `WhatsAppClientId` / `WhatsAppClientSecret` | WhatsApp OAuth credentials | [Guide](marketplace/docs/whatsapp-setup.md) |
+| `XDmClientId` / `XDmClientSecret` | X DMs OAuth credentials | [Guide](marketplace/docs/xdm-setup.md) |
+
+User-configured providers (no app settings needed): [Twilio](marketplace/docs/twilio-setup.md), [Telegram](marketplace/docs/telegram-setup.md), [Firecrawl](marketplace/docs/firecrawl-setup.md)

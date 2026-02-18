@@ -7,6 +7,7 @@ public class InstallRequest
 {
     public string InstallId { get; set; } = string.Empty;
     public string ToolId { get; set; } = string.Empty;
+    public string? BundleInstallId { get; set; }
 }
 
 /// <summary>
@@ -55,12 +56,24 @@ public class ConfigureResponse
 
 /// <summary>
 /// Request body for the /execute endpoint (called directly by consumer hosts).
+/// Contains a SessionId that is validated against the ORC on every call.
 /// </summary>
 public class ExecuteRequest
 {
-    public string InstallId { get; set; } = string.Empty;
+    public string SessionId { get; set; } = string.Empty;
     public string ToolId { get; set; } = string.Empty;
     public List<ParameterValue> Parameters { get; set; } = [];
+}
+
+/// <summary>
+/// Response from ORC validation endpoint.
+/// </summary>
+public class OrcValidationResponse
+{
+    public bool Valid { get; set; }
+    public string InstallId { get; set; } = string.Empty;
+    public string BundleInstallId { get; set; } = string.Empty;
+    public string Error { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -110,5 +123,25 @@ public class AuthStatusResponse
 {
     public bool Success { get; set; }
     public bool IsAuthenticated { get; set; }
+    public string? Error { get; set; }
+}
+
+/// <summary>
+/// Request body for the /configure/status endpoint.
+/// </summary>
+public class ConfigureStatusRequest
+{
+    public string InstallId { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Response body for the /configure/status endpoint.
+/// Returns which setup keys have been configured, without revealing values.
+/// </summary>
+public class ConfigureStatusResponse
+{
+    public bool Success { get; set; }
+    public bool IsConfigured { get; set; }
+    public List<string> ConfiguredKeys { get; set; } = [];
     public string? Error { get; set; }
 }

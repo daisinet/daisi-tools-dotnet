@@ -1,0 +1,869 @@
+{
+  "providers": {
+    "google": {
+      "routePrefix": "google",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with your Google account to grant access to Gmail, Drive, Calendar, and Sheets.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "google/auth/start",
+          "serviceLabel": "Google"
+        }
+      ]
+    },
+    "m365": {
+      "routePrefix": "m365",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with your Microsoft account to grant access to Outlook, OneDrive, Calendar, and Teams.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "m365/auth/start",
+          "serviceLabel": "Office 365"
+        }
+      ]
+    },
+    "firecrawl": {
+      "routePrefix": "firecrawl",
+      "setupParameters": [
+        {
+          "name": "apiKey",
+          "description": "Your Firecrawl API key. Get one at firecrawl.dev.",
+          "type": "apikey",
+          "isRequired": true,
+          "authUrlSuffix": null,
+          "serviceLabel": "Firecrawl"
+        }
+      ]
+    },
+    "social-x": {
+      "routePrefix": "social/x",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with your X (Twitter) account to authorize posting.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "social/x/auth/start",
+          "serviceLabel": "X (Twitter)"
+        }
+      ]
+    },
+    "social-facebook": {
+      "routePrefix": "social/facebook",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with Facebook to authorize posting to your Pages.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "social/facebook/auth/start",
+          "serviceLabel": "Facebook"
+        }
+      ]
+    },
+    "social-instagram": {
+      "routePrefix": "social/instagram",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with Facebook/Instagram to authorize publishing to your Instagram Business account.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "social/instagram/auth/start",
+          "serviceLabel": "Instagram"
+        }
+      ]
+    },
+    "social-linkedin": {
+      "routePrefix": "social/linkedin",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with LinkedIn to authorize posting to your profile.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "social/linkedin/auth/start",
+          "serviceLabel": "LinkedIn"
+        }
+      ]
+    },
+    "social-reddit": {
+      "routePrefix": "social/reddit",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with Reddit to authorize submitting posts.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "social/reddit/auth/start",
+          "serviceLabel": "Reddit"
+        }
+      ]
+    },
+    "social-tiktok": {
+      "routePrefix": "social/tiktok",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with TikTok to authorize publishing videos and photos.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "social/tiktok/auth/start",
+          "serviceLabel": "TikTok"
+        }
+      ]
+    },
+    "comms-slack": {
+      "routePrefix": "comms/slack",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with Slack to authorize sending messages and files to channels.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "comms/slack/auth/start",
+          "serviceLabel": "Slack"
+        }
+      ]
+    },
+    "comms-teams": {
+      "routePrefix": "comms/teams",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with Microsoft Teams to authorize sending chat messages.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "comms/teams/auth/start",
+          "serviceLabel": "Microsoft Teams"
+        }
+      ]
+    },
+    "comms-telegram": {
+      "routePrefix": "comms/telegram",
+      "setupParameters": [
+        {
+          "name": "botToken",
+          "description": "Your Telegram Bot token from BotFather.",
+          "type": "apikey",
+          "isRequired": true,
+          "authUrlSuffix": null,
+          "serviceLabel": "Telegram"
+        }
+      ]
+    },
+    "comms-twilio": {
+      "routePrefix": "comms/twilio",
+      "setupParameters": [
+        {
+          "name": "accountSid",
+          "description": "Your Twilio Account SID.",
+          "type": "text",
+          "isRequired": true,
+          "authUrlSuffix": null,
+          "serviceLabel": "Twilio"
+        },
+        {
+          "name": "authToken",
+          "description": "Your Twilio Auth Token.",
+          "type": "password",
+          "isRequired": true,
+          "authUrlSuffix": null,
+          "serviceLabel": "Twilio"
+        },
+        {
+          "name": "fromPhone",
+          "description": "Default Twilio phone number for SMS and voice (E.164 format).",
+          "type": "text",
+          "isRequired": false,
+          "authUrlSuffix": null,
+          "serviceLabel": "Twilio"
+        },
+        {
+          "name": "sendGridApiKey",
+          "description": "SendGrid API key for sending email via Twilio.",
+          "type": "apikey",
+          "isRequired": false,
+          "authUrlSuffix": null,
+          "serviceLabel": "Twilio"
+        }
+      ]
+    },
+    "comms-whatsapp": {
+      "routePrefix": "comms/whatsapp",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with Facebook to authorize WhatsApp Business messaging.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "comms/whatsapp/auth/start",
+          "serviceLabel": "WhatsApp"
+        }
+      ]
+    },
+    "comms-xdm": {
+      "routePrefix": "comms/xdm",
+      "setupParameters": [
+        {
+          "name": "oauth",
+          "description": "Sign in with X (Twitter) to authorize sending direct messages.",
+          "type": "oauth",
+          "isRequired": true,
+          "authUrlSuffix": "comms/xdm/auth/start",
+          "serviceLabel": "X Direct Messages"
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "toolId": "daisi-google-gmail-search",
+      "name": "Gmail Search",
+      "description": "Search Gmail messages using Gmail query syntax. Returns matching messages with subject, sender, date, and preview.",
+      "shortDescription": "Search your Gmail inbox",
+      "tags": ["google", "gmail", "email", "search"],
+      "provider": "google",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to search Gmail messages when the user wants to find specific emails. Supports full Gmail query syntax (e.g., from:user@example.com, subject:meeting, has:attachment).",
+      "parameters": [
+        { "name": "query", "description": "Gmail search query using Gmail query syntax (e.g., 'from:boss@company.com subject:budget')", "isRequired": true },
+        { "name": "maxResults", "description": "Maximum number of results to return (1-50, default: 10)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-google-gmail-unread",
+      "name": "Gmail Unread",
+      "description": "List unread messages in the Gmail inbox. Returns unread messages with subject, sender, date, and preview.",
+      "shortDescription": "Get unread Gmail messages",
+      "tags": ["google", "gmail", "email", "unread"],
+      "provider": "google",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to check for new unread emails in the user's Gmail inbox.",
+      "parameters": [
+        { "name": "maxResults", "description": "Maximum number of results to return (1-50, default: 10)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-google-gmail-read",
+      "name": "Gmail Read",
+      "description": "Read a full email message by its message ID. Returns subject, from, to, date, and body content.",
+      "shortDescription": "Read a full Gmail message",
+      "tags": ["google", "gmail", "email", "read"],
+      "provider": "google",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to read the full content of a specific Gmail message. Requires a message ID obtained from Gmail Search or Gmail Unread.",
+      "parameters": [
+        { "name": "messageId", "description": "The Gmail message ID to read", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-google-gmail-send",
+      "name": "Gmail Send",
+      "description": "Send an email via Gmail. Supports to, cc, bcc recipients with subject and body text.",
+      "shortDescription": "Send an email through Gmail",
+      "tags": ["google", "gmail", "email", "send"],
+      "provider": "google",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to send an email from the user's Gmail account. Always confirm the recipient and content with the user before sending.",
+      "parameters": [
+        { "name": "to", "description": "Recipient email address", "isRequired": true },
+        { "name": "subject", "description": "Email subject line", "isRequired": true },
+        { "name": "body", "description": "Email body text", "isRequired": true },
+        { "name": "cc", "description": "CC recipients (comma-separated email addresses)", "isRequired": false },
+        { "name": "bcc", "description": "BCC recipients (comma-separated email addresses)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-google-drive-search",
+      "name": "Google Drive Search",
+      "description": "Search Google Drive for files matching a query. Returns file id, name, type, and last modified time.",
+      "shortDescription": "Search files in Google Drive",
+      "tags": ["google", "drive", "files", "search"],
+      "provider": "google",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to find files in the user's Google Drive by name. The query matches against file names.",
+      "parameters": [
+        { "name": "query", "description": "Search text to match against file names", "isRequired": true },
+        { "name": "maxResults", "description": "Maximum number of results to return (1-100, default: 10)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-google-drive-read",
+      "name": "Google Drive Read",
+      "description": "Read a file's content from Google Drive by file ID. Google Docs/Sheets/Slides are exported as plain text. Binary files are returned as base64.",
+      "shortDescription": "Read a file from Google Drive",
+      "tags": ["google", "drive", "files", "read"],
+      "provider": "google",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to read the content of a Google Drive file. Requires a file ID obtained from Google Drive Search.",
+      "parameters": [
+        { "name": "fileId", "description": "The Google Drive file ID", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-google-calendar-list",
+      "name": "Google Calendar List",
+      "description": "List events from Google Calendar with optional time range filtering. Returns event summary, start/end times, description, and location.",
+      "shortDescription": "List Google Calendar events",
+      "tags": ["google", "calendar", "events", "schedule"],
+      "provider": "google",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to list upcoming calendar events or events within a specific time range from the user's Google Calendar.",
+      "parameters": [
+        { "name": "calendarId", "description": "Calendar ID (default: 'primary')", "isRequired": false },
+        { "name": "timeMin", "description": "Start of time range in ISO 8601 format (default: now)", "isRequired": false },
+        { "name": "timeMax", "description": "End of time range in ISO 8601 format", "isRequired": false },
+        { "name": "maxResults", "description": "Maximum number of results to return (1-100, default: 10)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-google-calendar-create",
+      "name": "Google Calendar Create",
+      "description": "Create a new event on Google Calendar with summary, start/end times, optional description and attendees.",
+      "shortDescription": "Create a Google Calendar event",
+      "tags": ["google", "calendar", "events", "create"],
+      "provider": "google",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to create a new calendar event. Requires at minimum a summary and start/end times in ISO 8601 format. Confirm details with the user before creating.",
+      "parameters": [
+        { "name": "summary", "description": "Event title", "isRequired": true },
+        { "name": "start", "description": "Start time in ISO 8601 format", "isRequired": true },
+        { "name": "end", "description": "End time in ISO 8601 format", "isRequired": true },
+        { "name": "description", "description": "Event description", "isRequired": false },
+        { "name": "attendees", "description": "Comma-separated email addresses of attendees", "isRequired": false },
+        { "name": "calendarId", "description": "Calendar ID (default: 'primary')", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-google-sheets-read",
+      "name": "Google Sheets Read",
+      "description": "Read data from a Google Sheets spreadsheet by ID and range. Returns values as a JSON array of rows.",
+      "shortDescription": "Read data from Google Sheets",
+      "tags": ["google", "sheets", "spreadsheet", "read"],
+      "provider": "google",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to read data from a Google Sheets spreadsheet. Requires the spreadsheet ID and a range in A1 notation (e.g., 'Sheet1!A1:D10').",
+      "parameters": [
+        { "name": "spreadsheetId", "description": "The Google Sheets spreadsheet ID", "isRequired": true },
+        { "name": "range", "description": "Cell range in A1 notation (e.g., 'Sheet1!A1:B10')", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-google-sheets-write",
+      "name": "Google Sheets Write",
+      "description": "Write data to a Google Sheets spreadsheet at a specified range. Accepts values as a JSON 2D array.",
+      "shortDescription": "Write data to Google Sheets",
+      "tags": ["google", "sheets", "spreadsheet", "write"],
+      "provider": "google",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to write data to a Google Sheets spreadsheet. Provide values as a JSON 2D array (e.g., [[\"Name\",\"Age\"],[\"Alice\",\"30\"]]). Formulas are parsed automatically.",
+      "parameters": [
+        { "name": "spreadsheetId", "description": "The Google Sheets spreadsheet ID", "isRequired": true },
+        { "name": "range", "description": "Target range in A1 notation (e.g., 'Sheet1!A1:B2')", "isRequired": true },
+        { "name": "values", "description": "Data as a JSON 2D array (e.g., [[\"col1\",\"col2\"],[\"val1\",\"val2\"]])", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-mail-search",
+      "name": "Outlook Mail Search",
+      "description": "Search Outlook mail using Microsoft Graph. Returns matching messages with subject, sender, date, and preview.",
+      "shortDescription": "Search Outlook email",
+      "tags": ["microsoft", "outlook", "email", "search"],
+      "provider": "m365",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to search the user's Outlook mailbox for specific messages.",
+      "parameters": [
+        { "name": "query", "description": "The search query string", "isRequired": true },
+        { "name": "maxResults", "description": "Maximum number of results to return (1-50, default: 10)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-mail-unread",
+      "name": "Outlook Mail Unread",
+      "description": "Get unread emails from the Outlook inbox. Returns messages with subject, sender, date, and preview.",
+      "shortDescription": "Get unread Outlook emails",
+      "tags": ["microsoft", "outlook", "email", "unread"],
+      "provider": "m365",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to check for new unread emails in the user's Outlook inbox.",
+      "parameters": [
+        { "name": "maxResults", "description": "Maximum number of results to return (1-50, default: 10)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-mail-read",
+      "name": "Outlook Mail Read",
+      "description": "Read a full email by message ID. Returns subject, sender, recipients, date, and body content. Prefers plain text format.",
+      "shortDescription": "Read a full Outlook email",
+      "tags": ["microsoft", "outlook", "email", "read"],
+      "provider": "m365",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to read the full content of a specific Outlook email. Requires a message ID from Mail Search or Mail Unread.",
+      "parameters": [
+        { "name": "messageId", "description": "The Outlook message ID to read", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-mail-send",
+      "name": "Outlook Mail Send",
+      "description": "Send an email via Outlook using Microsoft Graph. Supports to, cc, bcc recipients.",
+      "shortDescription": "Send email through Outlook",
+      "tags": ["microsoft", "outlook", "email", "send"],
+      "provider": "m365",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to send an email from the user's Outlook account. Always confirm the recipient and content with the user before sending.",
+      "parameters": [
+        { "name": "to", "description": "Recipient email address(es), comma-separated", "isRequired": true },
+        { "name": "subject", "description": "Email subject line", "isRequired": true },
+        { "name": "body", "description": "Email body text", "isRequired": true },
+        { "name": "cc", "description": "CC recipient(s), comma-separated", "isRequired": false },
+        { "name": "bcc", "description": "BCC recipient(s), comma-separated", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-onedrive-search",
+      "name": "OneDrive Search",
+      "description": "Search files in the user's OneDrive. Returns file id, name, web URL, size, and last modified date.",
+      "shortDescription": "Search files in OneDrive",
+      "tags": ["microsoft", "onedrive", "files", "search"],
+      "provider": "m365",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to find files in the user's OneDrive storage.",
+      "parameters": [
+        { "name": "query", "description": "The search query string", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-onedrive-read",
+      "name": "OneDrive Read",
+      "description": "Download and read a file from OneDrive by item ID. Returns content as text for text-based files, or indicates binary type for others.",
+      "shortDescription": "Read a file from OneDrive",
+      "tags": ["microsoft", "onedrive", "files", "read"],
+      "provider": "m365",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to read the content of a OneDrive file. Requires an item ID from OneDrive Search. Text files up to 5 MB are returned as content; binary files return metadata only.",
+      "parameters": [
+        { "name": "itemId", "description": "The OneDrive item ID of the file", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-calendar-list",
+      "name": "Outlook Calendar List",
+      "description": "List calendar events from the user's primary Outlook calendar. Supports time range filtering. Returns subject, start/end, location, and organizer.",
+      "shortDescription": "List Outlook calendar events",
+      "tags": ["microsoft", "outlook", "calendar", "events"],
+      "provider": "m365",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to list calendar events from the user's Outlook calendar, optionally filtered by time range.",
+      "parameters": [
+        { "name": "timeMin", "description": "Filter events starting from this datetime (ISO 8601 format)", "isRequired": false },
+        { "name": "timeMax", "description": "Filter events ending before this datetime (ISO 8601 format)", "isRequired": false },
+        { "name": "maxResults", "description": "Maximum number of results to return (1-50, default: 10)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-calendar-create",
+      "name": "Outlook Calendar Create",
+      "description": "Create a calendar event in the user's primary Outlook calendar with subject, start/end times, optional body, attendees, time zone, and location.",
+      "shortDescription": "Create an Outlook calendar event",
+      "tags": ["microsoft", "outlook", "calendar", "create"],
+      "provider": "m365",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to create a new calendar event in the user's Outlook calendar. Confirm details with the user before creating.",
+      "parameters": [
+        { "name": "subject", "description": "Event title/subject", "isRequired": true },
+        { "name": "start", "description": "Start datetime in ISO 8601 format", "isRequired": true },
+        { "name": "end", "description": "End datetime in ISO 8601 format", "isRequired": true },
+        { "name": "body", "description": "Event description/body text", "isRequired": false },
+        { "name": "attendees", "description": "Attendee email addresses, comma-separated", "isRequired": false },
+        { "name": "timeZone", "description": "Time zone for start/end (default: UTC)", "isRequired": false },
+        { "name": "location", "description": "Event location", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-m365-teams-send",
+      "name": "Teams Channel Send",
+      "description": "Send a message to a Microsoft Teams channel using Microsoft Graph. Supports text and HTML content.",
+      "shortDescription": "Send a Teams channel message",
+      "tags": ["microsoft", "teams", "channel", "message"],
+      "provider": "m365",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to send a message to a Microsoft Teams channel. Requires the team ID and channel ID.",
+      "parameters": [
+        { "name": "teamId", "description": "Microsoft Teams team ID", "isRequired": true },
+        { "name": "channelId", "description": "Channel ID within the team", "isRequired": true },
+        { "name": "content", "description": "Message content/body", "isRequired": true },
+        { "name": "contentType", "description": "Content type: 'html' or 'text' (default: 'text')", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-firecrawl-scrape",
+      "name": "Web Scrape",
+      "description": "Scrape a single web page and return its content as markdown. Powered by Firecrawl.",
+      "shortDescription": "Scrape a web page to markdown",
+      "tags": ["web", "scrape", "firecrawl", "markdown"],
+      "provider": "firecrawl",
+      "toolGroup": "WebTools",
+      "useInstructions": "Use this tool to scrape a single web page and get its content as clean markdown. Ideal for reading articles, documentation, or any web page content.",
+      "parameters": [
+        { "name": "url", "description": "The web page URL to scrape", "isRequired": true },
+        { "name": "formats", "description": "Output formats as a JSON array (e.g., [\"markdown\", \"html\"]). Default: [\"markdown\"]", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-firecrawl-crawl",
+      "name": "Web Crawl",
+      "description": "Crawl multiple pages from a website domain. Returns an async job that crawls pages following links. Powered by Firecrawl.",
+      "shortDescription": "Crawl multiple pages from a site",
+      "tags": ["web", "crawl", "firecrawl", "spider"],
+      "provider": "firecrawl",
+      "toolGroup": "WebTools",
+      "useInstructions": "Use this tool to crawl an entire website or section of a website. Starts from a root URL and follows links. Use includes/excludes to limit scope.",
+      "parameters": [
+        { "name": "url", "description": "The root URL to start crawling from", "isRequired": true },
+        { "name": "maxPages", "description": "Maximum number of pages to crawl", "isRequired": false },
+        { "name": "includes", "description": "Comma-separated path patterns to include (e.g., '/blog,/docs')", "isRequired": false },
+        { "name": "excludes", "description": "Comma-separated path patterns to exclude (e.g., '/admin,/private')", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-firecrawl-search",
+      "name": "Web Search",
+      "description": "Search the web and extract content from results. Returns search results with extracted page content. Powered by Firecrawl.",
+      "shortDescription": "Search the web with content extraction",
+      "tags": ["web", "search", "firecrawl"],
+      "provider": "firecrawl",
+      "toolGroup": "WebTools",
+      "useInstructions": "Use this tool to search the web and get content-extracted results. More thorough than a basic web search because it extracts and returns page content.",
+      "parameters": [
+        { "name": "query", "description": "The search query string", "isRequired": true },
+        { "name": "maxResults", "description": "Maximum number of search results to return", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-firecrawl-extract",
+      "name": "Web Extract",
+      "description": "AI-powered structured data extraction from a web page. Extracts specific data based on a prompt and optional JSON schema. Powered by Firecrawl.",
+      "shortDescription": "Extract structured data from a page",
+      "tags": ["web", "extract", "firecrawl", "ai"],
+      "provider": "firecrawl",
+      "toolGroup": "WebTools",
+      "useInstructions": "Use this tool to extract specific structured data from a web page using AI. Provide a prompt describing what data to extract. Optionally provide a JSON schema for the expected output structure.",
+      "parameters": [
+        { "name": "url", "description": "The web page URL to extract data from", "isRequired": true },
+        { "name": "prompt", "description": "AI prompt describing what data to extract", "isRequired": true },
+        { "name": "schema", "description": "Optional JSON schema defining the expected output structure", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-firecrawl-map",
+      "name": "Web Map",
+      "description": "Discover all URLs on a website by mapping its link structure. Returns a list of discovered URLs. Powered by Firecrawl.",
+      "shortDescription": "Map all URLs on a website",
+      "tags": ["web", "map", "firecrawl", "sitemap"],
+      "provider": "firecrawl",
+      "toolGroup": "WebTools",
+      "useInstructions": "Use this tool to discover all URLs on a website. Useful for understanding site structure before crawling or scraping specific pages.",
+      "parameters": [
+        { "name": "url", "description": "The website URL to map", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-social-x-post",
+      "name": "X Post",
+      "description": "Post a tweet to X (Twitter) with optional media, reply, or quote tweet. Supports image and video attachments.",
+      "shortDescription": "Post a tweet to X",
+      "tags": ["social", "x", "twitter", "tweet"],
+      "provider": "social-x",
+      "toolGroup": "SocialTools",
+      "useInstructions": "Use this tool to post a tweet to X (Twitter). Always confirm the content with the user before posting. Supports media attachments via URL or base64.",
+      "parameters": [
+        { "name": "text", "description": "Tweet text content", "isRequired": true },
+        { "name": "mediaUrl", "description": "URL of media file (image/video) to attach", "isRequired": false },
+        { "name": "mediaBase64", "description": "Base64-encoded media data", "isRequired": false },
+        { "name": "mediaAltText", "description": "Alt text for attached media (accessibility)", "isRequired": false },
+        { "name": "replyToId", "description": "Tweet ID to reply to", "isRequired": false },
+        { "name": "quoteTweetId", "description": "Tweet ID to quote", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-social-facebook-post",
+      "name": "Facebook Post",
+      "description": "Post to a Facebook Page. Supports text posts, photo posts, and link shares. Pages only — cannot post to personal profiles.",
+      "shortDescription": "Post to a Facebook Page",
+      "tags": ["social", "facebook", "page", "post"],
+      "provider": "social-facebook",
+      "toolGroup": "SocialTools",
+      "useInstructions": "Use this tool to post to a Facebook Page. Requires a Page ID. Supports text, photo (via URL), and link posts. Always confirm with the user before posting.",
+      "parameters": [
+        { "name": "pageId", "description": "The Facebook Page ID to post to", "isRequired": true },
+        { "name": "message", "description": "Text content of the post (or caption for photos)", "isRequired": false },
+        { "name": "mediaUrl", "description": "URL of an image to post as a photo", "isRequired": false },
+        { "name": "link", "description": "URL to share as a link post", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-social-instagram-publish",
+      "name": "Instagram Publish",
+      "description": "Publish content to Instagram. Supports single image, video (Reel), and carousel posts. Media must be at publicly accessible URLs. Requires a Business or Creator account.",
+      "shortDescription": "Publish to Instagram",
+      "tags": ["social", "instagram", "publish", "photo"],
+      "provider": "social-instagram",
+      "toolGroup": "SocialTools",
+      "useInstructions": "Use this tool to publish content to Instagram. Requires at least one media source (imageUrl, videoUrl, or carouselUrls). Media must be at publicly accessible URLs. Always confirm with the user before publishing.",
+      "parameters": [
+        { "name": "imageUrl", "description": "URL of a single image to publish", "isRequired": false },
+        { "name": "videoUrl", "description": "URL of a video to publish as a Reel", "isRequired": false },
+        { "name": "carouselUrls", "description": "JSON array of URLs for a carousel post (e.g., [\"url1\", \"url2\"])", "isRequired": false },
+        { "name": "caption", "description": "Caption/description for the post", "isRequired": false },
+        { "name": "mediaType", "description": "Media type (default: 'IMAGE')", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-social-linkedin-post",
+      "name": "LinkedIn Post",
+      "description": "Post to LinkedIn. Supports text posts and image posts. Images can be provided via URL or base64 encoding.",
+      "shortDescription": "Post to LinkedIn",
+      "tags": ["social", "linkedin", "post", "professional"],
+      "provider": "social-linkedin",
+      "toolGroup": "SocialTools",
+      "useInstructions": "Use this tool to post to the user's LinkedIn profile. Always confirm the content with the user before posting.",
+      "parameters": [
+        { "name": "text", "description": "Post commentary/text content", "isRequired": true },
+        { "name": "mediaUrl", "description": "URL of image to upload and attach", "isRequired": false },
+        { "name": "mediaBase64", "description": "Base64-encoded image data", "isRequired": false },
+        { "name": "mediaTitle", "description": "Title for the attached media (default: 'Image')", "isRequired": false },
+        { "name": "visibility", "description": "Post visibility (default: 'PUBLIC')", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-social-reddit-submit",
+      "name": "Reddit Submit",
+      "description": "Submit a post to a subreddit. Supports text (self) posts and link posts with optional flair.",
+      "shortDescription": "Submit a post to Reddit",
+      "tags": ["social", "reddit", "submit", "post"],
+      "provider": "social-reddit",
+      "toolGroup": "SocialTools",
+      "useInstructions": "Use this tool to submit a post to a subreddit. Requires the subreddit name (without 'r/') and a title. Always confirm with the user before submitting.",
+      "parameters": [
+        { "name": "subreddit", "description": "Subreddit name without the 'r/' prefix", "isRequired": true },
+        { "name": "title", "description": "Title of the post", "isRequired": true },
+        { "name": "text", "description": "Text content for self posts", "isRequired": false },
+        { "name": "url", "description": "URL for link posts", "isRequired": false },
+        { "name": "flairId", "description": "Post flair ID (if the subreddit uses flairs)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-social-tiktok-publish",
+      "name": "TikTok Publish",
+      "description": "Publish a video or photo post to TikTok. Uses TikTok's Content Posting API. Note: Unaudited apps post as private/self-only visibility.",
+      "shortDescription": "Publish to TikTok",
+      "tags": ["social", "tiktok", "publish", "video"],
+      "provider": "social-tiktok",
+      "toolGroup": "SocialTools",
+      "useInstructions": "Use this tool to publish content to TikTok. Requires at least one media source (videoUrl, videoBase64, or photoUrls). Always confirm with the user before publishing.",
+      "parameters": [
+        { "name": "videoUrl", "description": "URL of video file to publish", "isRequired": false },
+        { "name": "videoBase64", "description": "Base64-encoded video data", "isRequired": false },
+        { "name": "photoUrls", "description": "JSON array of photo URLs for a photo post (e.g., [\"url1\", \"url2\"])", "isRequired": false },
+        { "name": "description", "description": "Caption/title for the post", "isRequired": false },
+        { "name": "privacy", "description": "Privacy level (default: 'SELF_ONLY' for unaudited apps)", "isRequired": false },
+        { "name": "disableComment", "description": "Set to 'true' to disable comments", "isRequired": false },
+        { "name": "disableDuet", "description": "Set to 'true' to disable duets", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-comms-slack-send",
+      "name": "Slack Send",
+      "description": "Send a message to a Slack channel. Supports threaded replies and file attachments via URL or base64.",
+      "shortDescription": "Send a Slack message",
+      "tags": ["comms", "slack", "message", "chat"],
+      "provider": "comms-slack",
+      "toolGroup": "CommunicationTools",
+      "useInstructions": "Use this tool to send a message to a Slack channel. Requires the channel ID or name. Supports threaded replies via threadTs and file attachments.",
+      "parameters": [
+        { "name": "channel", "description": "Slack channel ID or name", "isRequired": true },
+        { "name": "text", "description": "Message text content", "isRequired": true },
+        { "name": "threadTs", "description": "Parent message timestamp for threaded replies", "isRequired": false },
+        { "name": "mediaUrl", "description": "URL of file to attach", "isRequired": false },
+        { "name": "mediaBase64", "description": "Base64-encoded file data to attach", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-comms-teams-send",
+      "name": "Teams Chat Send",
+      "description": "Send a message to a Microsoft Teams chat using the Graph API. Supports text and HTML content.",
+      "shortDescription": "Send a Teams chat message",
+      "tags": ["comms", "teams", "chat", "message"],
+      "provider": "comms-teams",
+      "toolGroup": "CommunicationTools",
+      "useInstructions": "Use this tool to send a message to a Microsoft Teams chat. Requires the chat ID. This is separate from the M365 Teams Channel Send tool — this sends to individual/group chats.",
+      "parameters": [
+        { "name": "chatId", "description": "Microsoft Teams chat ID", "isRequired": true },
+        { "name": "message", "description": "Message content", "isRequired": true },
+        { "name": "contentType", "description": "Content type: 'text' or 'html' (default: 'text')", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-comms-telegram-send",
+      "name": "Telegram Send",
+      "description": "Send a message to a Telegram chat. Supports text messages and media (photos, videos, documents) via URL or base64.",
+      "shortDescription": "Send a Telegram message",
+      "tags": ["comms", "telegram", "message", "bot"],
+      "provider": "comms-telegram",
+      "toolGroup": "CommunicationTools",
+      "useInstructions": "Use this tool to send a message via a Telegram bot. Requires the chat ID. Supports text, photos, videos, and document attachments.",
+      "parameters": [
+        { "name": "chatId", "description": "Telegram chat ID (user or channel)", "isRequired": true },
+        { "name": "text", "description": "Message text (required if no media)", "isRequired": false },
+        { "name": "mediaUrl", "description": "URL of media file to send (photo, video, or document)", "isRequired": false },
+        { "name": "mediaBase64", "description": "Base64-encoded media data", "isRequired": false },
+        { "name": "parseMode", "description": "Parse mode: 'HTML' or 'Markdown'", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-comms-twilio-sms",
+      "name": "Twilio SMS",
+      "description": "Send an SMS message via Twilio. Supports MMS with media attachments.",
+      "shortDescription": "Send an SMS via Twilio",
+      "tags": ["comms", "twilio", "sms", "text"],
+      "provider": "comms-twilio",
+      "toolGroup": "CommunicationTools",
+      "useInstructions": "Use this tool to send an SMS/MMS message via Twilio. Requires the recipient phone number in E.164 format (e.g., +1234567890).",
+      "parameters": [
+        { "name": "to", "description": "Recipient phone number in E.164 format", "isRequired": true },
+        { "name": "body", "description": "SMS message text", "isRequired": true },
+        { "name": "from", "description": "Sender phone number (defaults to configured number)", "isRequired": false },
+        { "name": "mediaUrl", "description": "URL of media to attach (MMS)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-comms-twilio-voice",
+      "name": "Twilio Voice",
+      "description": "Initiate a voice call via Twilio. Uses a TwiML URL to define the call flow.",
+      "shortDescription": "Make a phone call via Twilio",
+      "tags": ["comms", "twilio", "voice", "call"],
+      "provider": "comms-twilio",
+      "toolGroup": "CommunicationTools",
+      "useInstructions": "Use this tool to initiate a phone call via Twilio. Requires a TwiML URL that defines what happens during the call.",
+      "parameters": [
+        { "name": "to", "description": "Recipient phone number in E.164 format", "isRequired": true },
+        { "name": "twimlUrl", "description": "URL to TwiML script defining the call flow", "isRequired": true },
+        { "name": "from", "description": "Caller phone number (defaults to configured number)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-comms-twilio-email",
+      "name": "Twilio Email",
+      "description": "Send an email via Twilio SendGrid. Supports plain text and HTML content.",
+      "shortDescription": "Send email via SendGrid",
+      "tags": ["comms", "twilio", "email", "sendgrid"],
+      "provider": "comms-twilio",
+      "toolGroup": "CommunicationTools",
+      "useInstructions": "Use this tool to send an email via Twilio SendGrid. Always confirm the recipient and content with the user before sending.",
+      "parameters": [
+        { "name": "to", "description": "Recipient email address", "isRequired": true },
+        { "name": "subject", "description": "Email subject line", "isRequired": true },
+        { "name": "body", "description": "Email body content", "isRequired": true },
+        { "name": "from", "description": "Sender email address (default: noreply@example.com)", "isRequired": false },
+        { "name": "isHtml", "description": "Set to 'true' for HTML content, 'false' for plain text (default: false)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-comms-whatsapp-send",
+      "name": "WhatsApp Send",
+      "description": "Send a WhatsApp message via the WhatsApp Business API. Supports text, template, and media messages.",
+      "shortDescription": "Send a WhatsApp message",
+      "tags": ["comms", "whatsapp", "message", "business"],
+      "provider": "comms-whatsapp",
+      "toolGroup": "CommunicationTools",
+      "useInstructions": "Use this tool to send a WhatsApp message via the Business API. Requires a WhatsApp Business Phone Number ID and the recipient's phone number. Supports text, templates, and media.",
+      "parameters": [
+        { "name": "phoneNumberId", "description": "WhatsApp Business Phone Number ID", "isRequired": true },
+        { "name": "to", "description": "Recipient phone number in E.164 format", "isRequired": true },
+        { "name": "text", "description": "Message text (required unless using template or media)", "isRequired": false },
+        { "name": "templateName", "description": "Name of a pre-approved WhatsApp message template", "isRequired": false },
+        { "name": "templateLanguage", "description": "Template language code (default: 'en_US')", "isRequired": false },
+        { "name": "templateParams", "description": "JSON array of template parameter values", "isRequired": false },
+        { "name": "mediaUrl", "description": "URL of media file for media messages", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-comms-xdm-send",
+      "name": "X Direct Message",
+      "description": "Send a direct message on X (Twitter). Supports text messages with optional media attachments.",
+      "shortDescription": "Send an X direct message",
+      "tags": ["comms", "x", "twitter", "dm", "message"],
+      "provider": "comms-xdm",
+      "toolGroup": "CommunicationTools",
+      "useInstructions": "Use this tool to send a direct message on X (Twitter). Requires the recipient's X user ID.",
+      "parameters": [
+        { "name": "recipientId", "description": "X user ID of the recipient", "isRequired": true },
+        { "name": "text", "description": "Message text content", "isRequired": true },
+        { "name": "mediaUrl", "description": "URL of media file to attach", "isRequired": false },
+        { "name": "mediaBase64", "description": "Base64-encoded media data to attach", "isRequired": false }
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "pluginId": "google-workspace",
+      "name": "Google Workspace",
+      "description": "Complete Google Workspace integration with Gmail, Drive, Calendar, and Sheets. Search, read, and send emails. Search and read Drive files. List and create calendar events. Read and write spreadsheet data.",
+      "shortDescription": "Gmail, Drive, Calendar, and Sheets integration",
+      "tags": ["google", "workspace", "gmail", "drive", "calendar", "sheets"],
+      "provider": "google",
+      "toolIds": [
+        "daisi-google-gmail-search",
+        "daisi-google-gmail-unread",
+        "daisi-google-gmail-read",
+        "daisi-google-gmail-send",
+        "daisi-google-drive-search",
+        "daisi-google-drive-read",
+        "daisi-google-calendar-list",
+        "daisi-google-calendar-create",
+        "daisi-google-sheets-read",
+        "daisi-google-sheets-write"
+      ]
+    },
+    {
+      "pluginId": "microsoft-365",
+      "name": "Microsoft 365",
+      "description": "Complete Microsoft 365 integration with Outlook, OneDrive, Calendar, and Teams. Search, read, and send emails. Search and read OneDrive files. List and create calendar events. Send Teams channel messages.",
+      "shortDescription": "Outlook, OneDrive, Calendar, and Teams integration",
+      "tags": ["microsoft", "m365", "outlook", "onedrive", "calendar", "teams"],
+      "provider": "m365",
+      "toolIds": [
+        "daisi-m365-mail-search",
+        "daisi-m365-mail-unread",
+        "daisi-m365-mail-read",
+        "daisi-m365-mail-send",
+        "daisi-m365-onedrive-search",
+        "daisi-m365-onedrive-read",
+        "daisi-m365-calendar-list",
+        "daisi-m365-calendar-create",
+        "daisi-m365-teams-send"
+      ]
+    },
+    {
+      "pluginId": "firecrawl",
+      "name": "Firecrawl Web Tools",
+      "description": "Web scraping, crawling, search, extraction, and URL mapping powered by Firecrawl. Scrape pages to markdown, crawl entire sites, search the web with content extraction, extract structured data with AI, and map website URLs.",
+      "shortDescription": "Web scraping, crawling, and extraction",
+      "tags": ["web", "firecrawl", "scrape", "crawl", "search", "extract"],
+      "provider": "firecrawl",
+      "toolIds": [
+        "daisi-firecrawl-scrape",
+        "daisi-firecrawl-crawl",
+        "daisi-firecrawl-search",
+        "daisi-firecrawl-extract",
+        "daisi-firecrawl-map"
+      ]
+    }
+  ]
+}

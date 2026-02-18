@@ -1,5 +1,6 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SecureToolProvider.Common;
 using SecureToolProvider.Common.Models;
@@ -28,8 +29,9 @@ public class TelegramFunctions : SecureToolFunctionBase
         AuthValidator authValidator,
         SocialHttpClient socialHttpClient,
         IHttpClientFactory httpClientFactory,
+        IConfiguration configuration,
         ILogger<TelegramFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _httpClientFactory = httpClientFactory;
@@ -51,6 +53,11 @@ public class TelegramFunctions : SecureToolFunctionBase
     public Task<HttpResponseData> Configure(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/telegram/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
+
+    [Function("comms-telegram-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/telegram/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
 
     [Function("comms-telegram-execute")]
     public Task<HttpResponseData> Execute(

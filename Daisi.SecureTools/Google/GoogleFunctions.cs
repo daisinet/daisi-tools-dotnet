@@ -39,7 +39,7 @@ public class GoogleFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<GoogleFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _serviceFactory = serviceFactory;
         _configuration = configuration;
@@ -71,7 +71,7 @@ public class GoogleFunctions : SecureToolFunctionBase
                 "https://www.googleapis.com/auth/calendar.events",
                 "https://www.googleapis.com/auth/spreadsheets"
             ],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/google/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/google/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>
             {
                 ["access_type"] = "offline",
@@ -98,6 +98,11 @@ public class GoogleFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "google/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("google-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "google/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("google-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "google/execute")] HttpRequestData req)
@@ -105,7 +110,7 @@ public class GoogleFunctions : SecureToolFunctionBase
 
     [Function("google-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "google/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "google/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("google-auth-callback")]

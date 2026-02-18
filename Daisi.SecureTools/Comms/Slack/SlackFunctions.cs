@@ -32,7 +32,7 @@ public class SlackFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<SlackFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -54,7 +54,7 @@ public class SlackFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["chat:write", "chat:write.public", "files:write"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/comms/slack/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/comms/slack/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -77,6 +77,11 @@ public class SlackFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/slack/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("comms-slack-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/slack/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("comms-slack-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/slack/execute")] HttpRequestData req)
@@ -84,7 +89,7 @@ public class SlackFunctions : SecureToolFunctionBase
 
     [Function("comms-slack-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/slack/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "comms/slack/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("comms-slack-auth-callback")]

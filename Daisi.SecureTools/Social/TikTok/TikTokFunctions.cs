@@ -31,7 +31,7 @@ public class TikTokFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<TikTokFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -53,7 +53,7 @@ public class TikTokFunctions : SecureToolFunctionBase
             ClientId = clientKey,
             ClientSecret = clientSecret,
             Scopes = ["video.upload", "video.publish", "user.info.basic"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/tiktok/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/tiktok/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -76,6 +76,11 @@ public class TikTokFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/tiktok/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-tiktok-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/tiktok/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-tiktok-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/tiktok/execute")] HttpRequestData req)
@@ -83,7 +88,7 @@ public class TikTokFunctions : SecureToolFunctionBase
 
     [Function("social-tiktok-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/tiktok/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/tiktok/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-tiktok-auth-callback")]

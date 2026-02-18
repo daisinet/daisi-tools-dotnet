@@ -32,7 +32,7 @@ public class XDmFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<XDmFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -54,7 +54,7 @@ public class XDmFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["dm.read", "dm.write", "users.read", "offline.access"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/comms/xdm/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/comms/xdm/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -77,6 +77,11 @@ public class XDmFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/xdm/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("comms-xdm-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/xdm/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("comms-xdm-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/xdm/execute")] HttpRequestData req)
@@ -84,7 +89,7 @@ public class XDmFunctions : SecureToolFunctionBase
 
     [Function("comms-xdm-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/xdm/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "comms/xdm/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("comms-xdm-auth-callback")]

@@ -39,7 +39,7 @@ public class Microsoft365Functions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<Microsoft365Functions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _graphClientFactory = graphClientFactory;
         _configuration = configuration;
@@ -66,7 +66,7 @@ public class Microsoft365Functions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["Mail.Read", "Mail.Send", "Files.Read", "Calendars.ReadWrite", "ChannelMessage.Send", "User.Read", "offline_access"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/m365/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/m365/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>
             {
                 ["prompt"] = "consent"
@@ -92,6 +92,11 @@ public class Microsoft365Functions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "m365/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("m365-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "m365/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("m365-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "m365/execute")] HttpRequestData req)
@@ -99,7 +104,7 @@ public class Microsoft365Functions : SecureToolFunctionBase
 
     [Function("m365-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "m365/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "m365/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("m365-auth-callback")]

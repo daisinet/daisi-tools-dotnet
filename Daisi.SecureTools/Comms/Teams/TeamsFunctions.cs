@@ -32,7 +32,7 @@ public class TeamsFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<TeamsFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -55,7 +55,7 @@ public class TeamsFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["Chat.ReadWrite", "ChatMessage.Send", "User.Read", "offline_access"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/comms/teams/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/comms/teams/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -78,6 +78,11 @@ public class TeamsFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/teams/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("comms-teams-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/teams/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("comms-teams-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/teams/execute")] HttpRequestData req)
@@ -85,7 +90,7 @@ public class TeamsFunctions : SecureToolFunctionBase
 
     [Function("comms-teams-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/teams/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "comms/teams/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("comms-teams-auth-callback")]

@@ -30,7 +30,7 @@ public class FacebookFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<FacebookFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -52,7 +52,7 @@ public class FacebookFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["pages_manage_posts", "pages_read_engagement", "pages_show_list"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/facebook/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/facebook/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -75,6 +75,11 @@ public class FacebookFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/facebook/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-facebook-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/facebook/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-facebook-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/facebook/execute")] HttpRequestData req)
@@ -82,7 +87,7 @@ public class FacebookFunctions : SecureToolFunctionBase
 
     [Function("social-facebook-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/facebook/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/facebook/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-facebook-auth-callback")]

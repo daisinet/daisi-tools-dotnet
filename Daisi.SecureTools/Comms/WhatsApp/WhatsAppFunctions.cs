@@ -32,7 +32,7 @@ public class WhatsAppFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<WhatsAppFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -54,7 +54,7 @@ public class WhatsAppFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["whatsapp_business_management", "whatsapp_business_messaging"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/comms/whatsapp/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/comms/whatsapp/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -77,6 +77,11 @@ public class WhatsAppFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/whatsapp/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("comms-whatsapp-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/whatsapp/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("comms-whatsapp-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/whatsapp/execute")] HttpRequestData req)
@@ -84,7 +89,7 @@ public class WhatsAppFunctions : SecureToolFunctionBase
 
     [Function("comms-whatsapp-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/whatsapp/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "comms/whatsapp/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("comms-whatsapp-auth-callback")]

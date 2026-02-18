@@ -1,6 +1,8 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SecureToolProvider.Common.Models;
 
@@ -16,14 +18,19 @@ public abstract class SecureToolFunctionBase
     protected readonly ISetupStore SetupStore;
     protected readonly AuthValidator AuthValidator;
     protected readonly ILogger Logger;
+    protected readonly IHttpClientFactory HttpClientFactory;
+    protected readonly string OrcValidationUrl;
 
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    protected SecureToolFunctionBase(ISetupStore setupStore, AuthValidator authValidator, ILogger logger)
+    protected SecureToolFunctionBase(ISetupStore setupStore, AuthValidator authValidator, ILogger logger,
+        IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         SetupStore = setupStore;
         AuthValidator = authValidator;
         Logger = logger;
+        HttpClientFactory = httpClientFactory;
+        OrcValidationUrl = configuration["OrcValidationUrl"] ?? string.Empty;
     }
 
     /// <summary>
@@ -53,7 +60,13 @@ public abstract class SecureToolFunctionBase
                 new InstallResponse { Success = false, Error = "Invalid request body" });
 
         await SetupStore.RegisterInstallAsync(body.InstallId, body.ToolId);
-        Logger.LogInformation("Installed tool {ToolId} with installId {InstallId}", body.ToolId, body.InstallId);
+
+        // Also register the BundleInstallId so OAuth can be shared across bundled tools
+        if (!string.IsNullOrEmpty(body.BundleInstallId))
+            await SetupStore.RegisterInstallAsync(body.BundleInstallId, $"bundle:{body.ToolId}");
+
+        Logger.LogInformation("Installed tool {ToolId} with installId {InstallId}, bundleInstallId {BundleInstallId}",
+            body.ToolId, body.InstallId, body.BundleInstallId ?? "(none)");
 
         return await CreateJsonResponse(req, HttpStatusCode.OK, new InstallResponse { Success = true });
     }
@@ -99,19 +112,32 @@ public abstract class SecureToolFunctionBase
 
     /// <summary>
     /// POST /api/execute — Executes the tool with provided parameters.
+    /// Validates every execution through the ORC using the SessionId.
     /// </summary>
     protected async Task<HttpResponseData> HandleExecuteAsync(HttpRequestData req)
     {
         var body = await DeserializeAsync<ExecuteRequest>(req);
-        if (body is null || string.IsNullOrEmpty(body.InstallId))
+        if (body is null || string.IsNullOrEmpty(body.SessionId) || string.IsNullOrEmpty(body.ToolId))
             return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
-                new ExecuteResponse { Success = false, ErrorMessage = "Invalid request body" });
+                new ExecuteResponse { Success = false, ErrorMessage = "SessionId and ToolId are required." });
 
-        if (!await SetupStore.IsInstalledAsync(body.InstallId))
+        // Validate the session with the ORC — this returns the InstallId
+        var validation = await ValidateSessionWithOrcAsync(body.SessionId, body.ToolId);
+        if (validation is null || !validation.Valid)
+        {
+            var errorMsg = validation?.Error ?? "ORC validation failed.";
+            Logger.LogWarning("ORC validation failed for session {SessionId}, tool {ToolId}: {Error}", body.SessionId, body.ToolId, errorMsg);
+            return await CreateJsonResponse(req, HttpStatusCode.Forbidden,
+                new ExecuteResponse { Success = false, ErrorMessage = errorMsg });
+        }
+
+        var installId = validation.InstallId;
+
+        if (!await SetupStore.IsInstalledAsync(installId))
             return await CreateJsonResponse(req, HttpStatusCode.Forbidden,
                 new ExecuteResponse { Success = false, ErrorMessage = "Unknown installation. The tool may not be installed." });
 
-        var setup = await SetupStore.GetSetupAsync(body.InstallId);
+        var setup = await SetupStore.GetSetupAsync(installId);
         if (setup is null)
             return await CreateJsonResponse(req, HttpStatusCode.OK,
                 new ExecuteResponse { Success = false, ErrorMessage = "Tool has not been configured. Please configure it first." });
@@ -120,25 +146,57 @@ public abstract class SecureToolFunctionBase
         var oauthHelper = GetOAuthHelper();
         if (oauthHelper is not null)
         {
-            setup = await RefreshTokensIfNeededAsync(body.InstallId, setup, oauthHelper);
+            setup = await RefreshTokensIfNeededAsync(installId, setup, oauthHelper);
         }
 
         try
         {
-            var result = await ExecuteToolAsync(body.InstallId, body.ToolId, body.Parameters, setup);
-            Logger.LogInformation("Executed tool {ToolId} for installId {InstallId}", body.ToolId, body.InstallId);
+            var result = await ExecuteToolAsync(installId, body.ToolId, body.Parameters, setup);
+            Logger.LogInformation("Executed tool {ToolId} for session {SessionId} (installId {InstallId})", body.ToolId, body.SessionId, installId);
             return await CreateJsonResponse(req, HttpStatusCode.OK, result);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error executing tool {ToolId} for installId {InstallId}", body.ToolId, body.InstallId);
+            Logger.LogError(ex, "Error executing tool {ToolId} for session {SessionId}", body.ToolId, body.SessionId);
             return await CreateJsonResponse(req, HttpStatusCode.OK,
                 new ExecuteResponse { Success = false, ErrorMessage = $"Tool execution failed: {ex.Message}" });
         }
     }
 
     /// <summary>
-    /// POST /api/auth/start — Initiates the OAuth flow by returning the authorization URL.
+    /// Validate a session and tool execution with the ORC.
+    /// Returns the InstallId and BundleInstallId on success.
+    /// </summary>
+    private async Task<OrcValidationResponse?> ValidateSessionWithOrcAsync(string sessionId, string toolId)
+    {
+        if (string.IsNullOrEmpty(OrcValidationUrl))
+        {
+            Logger.LogError("OrcValidationUrl is not configured. Cannot validate secure tool execution.");
+            return null;
+        }
+
+        try
+        {
+            var client = HttpClientFactory.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{OrcValidationUrl.TrimEnd('/')}/api/secure-tools/validate");
+            request.Content = JsonContent.Create(new { sessionId, toolId });
+            request.Headers.Add("X-Daisi-Auth", AuthValidator.GetAuthKey());
+
+            var response = await client.SendAsync(request);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<OrcValidationResponse>(json, JsonOptions);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error calling ORC validation endpoint");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// GET or POST /api/auth/start — Initiates the OAuth flow.
+    /// GET: reads installId/service from query params and redirects the browser to the OAuth provider.
+    /// POST: reads from JSON body and returns the authorize URL as JSON.
     /// </summary>
     protected async Task<HttpResponseData> HandleAuthStartAsync(HttpRequestData req)
     {
@@ -147,16 +205,39 @@ public abstract class SecureToolFunctionBase
             return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
                 new AuthStartResponse { Success = false, Error = "This tool does not use OAuth." });
 
-        var body = await DeserializeAsync<AuthStartRequest>(req);
-        if (body is null || string.IsNullOrEmpty(body.InstallId))
-            return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
-                new AuthStartResponse { Success = false, Error = "Invalid request body" });
+        string? installId;
+        string? setupKey;
 
-        if (!await SetupStore.IsInstalledAsync(body.InstallId))
+        if (req.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+        {
+            var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
+            installId = query["installId"];
+            setupKey = query["service"] ?? string.Empty;
+        }
+        else
+        {
+            var body = await DeserializeAsync<AuthStartRequest>(req);
+            installId = body?.InstallId;
+            setupKey = body?.SetupKey ?? string.Empty;
+        }
+
+        if (string.IsNullOrEmpty(installId))
+            return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
+                new AuthStartResponse { Success = false, Error = "Missing installId" });
+
+        if (!await SetupStore.IsInstalledAsync(installId))
             return await CreateJsonResponse(req, HttpStatusCode.Forbidden,
                 new AuthStartResponse { Success = false, Error = "Unknown installation." });
 
-        var (authorizeUrl, _) = oauthHelper.BuildAuthorizeUrl(body.InstallId, body.SetupKey);
+        var (authorizeUrl, _) = oauthHelper.BuildAuthorizeUrl(installId, setupKey);
+
+        // GET requests redirect the browser directly to the OAuth provider
+        if (req.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+        {
+            var response = req.CreateResponse(HttpStatusCode.Redirect);
+            response.Headers.Add("Location", authorizeUrl);
+            return response;
+        }
 
         return await CreateJsonResponse(req, HttpStatusCode.OK,
             new AuthStartResponse { Success = true, AuthorizeUrl = authorizeUrl });
@@ -227,6 +308,33 @@ public abstract class SecureToolFunctionBase
         response.Headers.Add("Content-Type", "text/html");
         await response.WriteStringAsync(BuildCallbackHtml(true, "Authorization successful! You can close this window."));
         return response;
+    }
+
+    /// <summary>
+    /// POST /api/configure/status — Check if setup data exists for an installation.
+    /// Returns which keys are configured without revealing their values.
+    /// </summary>
+    protected async Task<HttpResponseData> HandleConfigureStatusAsync(HttpRequestData req)
+    {
+        var body = await DeserializeAsync<ConfigureStatusRequest>(req);
+        if (body is null || string.IsNullOrEmpty(body.InstallId))
+            return await CreateJsonResponse(req, HttpStatusCode.BadRequest,
+                new ConfigureStatusResponse { Success = false, Error = "Invalid request body" });
+
+        if (!await SetupStore.IsInstalledAsync(body.InstallId))
+            return await CreateJsonResponse(req, HttpStatusCode.Forbidden,
+                new ConfigureStatusResponse { Success = false, Error = "Unknown installation." });
+
+        var setup = await SetupStore.GetSetupAsync(body.InstallId);
+
+        // Return only user-provided keys (exclude OAuth internal keys)
+        var configuredKeys = setup?.Keys
+            .Where(k => !k.EndsWith("_access_token") && !k.EndsWith("_refresh_token")
+                        && !k.EndsWith("_expires_at") && !k.EndsWith("_authenticated"))
+            .ToList() ?? [];
+
+        return await CreateJsonResponse(req, HttpStatusCode.OK,
+            new ConfigureStatusResponse { Success = true, IsConfigured = configuredKeys.Count > 0, ConfiguredKeys = configuredKeys });
     }
 
     /// <summary>

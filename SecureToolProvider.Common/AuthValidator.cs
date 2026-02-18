@@ -18,6 +18,11 @@ public class AuthValidator
     }
 
     /// <summary>
+    /// Returns the configured auth key for use in outbound ORC validation calls.
+    /// </summary>
+    public string GetAuthKey() => _authKey;
+
+    /// <summary>
     /// Verify the X-Daisi-Auth header matches the configured shared secret.
     /// Used for ORC-originated calls (install/uninstall).
     /// </summary>

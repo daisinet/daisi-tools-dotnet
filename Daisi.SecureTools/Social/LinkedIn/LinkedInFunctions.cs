@@ -30,7 +30,7 @@ public class LinkedInFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<LinkedInFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -52,7 +52,7 @@ public class LinkedInFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["w_member_social", "openid", "profile"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/linkedin/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/linkedin/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>()
         };
 
@@ -75,6 +75,11 @@ public class LinkedInFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/linkedin/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-linkedin-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/linkedin/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-linkedin-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/linkedin/execute")] HttpRequestData req)
@@ -82,7 +87,7 @@ public class LinkedInFunctions : SecureToolFunctionBase
 
     [Function("social-linkedin-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/linkedin/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/linkedin/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-linkedin-auth-callback")]

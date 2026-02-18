@@ -30,7 +30,7 @@ public class RedditFunctions : SecureToolFunctionBase
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         ILogger<RedditFunctions> logger)
-        : base(setupStore, authValidator, logger)
+        : base(setupStore, authValidator, logger, httpClientFactory, configuration)
     {
         _socialHttpClient = socialHttpClient;
         _configuration = configuration;
@@ -52,7 +52,7 @@ public class RedditFunctions : SecureToolFunctionBase
             ClientId = clientId,
             ClientSecret = clientSecret,
             Scopes = ["submit", "identity"],
-            RedirectUri = _configuration["OAuthRedirectUri"] ?? "https://localhost:7071/api/social/reddit/auth/callback",
+            RedirectUri = $"{(_configuration["BaseUrl"] ?? "https://localhost:7071")}/api/social/reddit/auth/callback",
             AdditionalAuthParams = new Dictionary<string, string>
             {
                 ["duration"] = "permanent"
@@ -78,6 +78,11 @@ public class RedditFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/reddit/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-reddit-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/reddit/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-reddit-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/reddit/execute")] HttpRequestData req)
@@ -85,7 +90,7 @@ public class RedditFunctions : SecureToolFunctionBase
 
     [Function("social-reddit-auth-start")]
     public Task<HttpResponseData> AuthStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/reddit/auth/start")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "social/reddit/auth/start")] HttpRequestData req)
         => HandleAuthStartAsync(req);
 
     [Function("social-reddit-auth-callback")]

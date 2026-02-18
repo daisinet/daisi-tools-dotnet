@@ -76,6 +76,11 @@ public class TikTokFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/tiktok/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-tiktok-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/tiktok/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-tiktok-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/tiktok/execute")] HttpRequestData req)

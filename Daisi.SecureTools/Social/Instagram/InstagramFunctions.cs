@@ -77,6 +77,11 @@ public class InstagramFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/instagram/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-instagram-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/instagram/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-instagram-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/instagram/execute")] HttpRequestData req)

@@ -77,6 +77,11 @@ public class WhatsAppFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/whatsapp/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("comms-whatsapp-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/whatsapp/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("comms-whatsapp-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "comms/whatsapp/execute")] HttpRequestData req)

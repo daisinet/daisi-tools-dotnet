@@ -75,6 +75,11 @@ public class XFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/x/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-x-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/x/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-x-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/x/execute")] HttpRequestData req)

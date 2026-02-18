@@ -34,6 +34,6 @@ jobs:
         env:
           COSMOSDB_ACCOUNT: ${{ github.ref == 'refs/heads/main' && secrets.PROD_COSMOSDB_ACCOUNT_NAME || secrets.DEV_COSMOSDB_ACCOUNT_NAME }}
           COSMOSDB_DATABASE: ${{ github.ref == 'refs/heads/main' && secrets.PROD_COSMOSDB_DATABASE_NAME || secrets.DEV_COSMOSDB_DATABASE_NAME }}
-          DAISI_ACCOUNT_ID: ${{ secrets.DAISI_ACCOUNT_ID }}
+          DAISI_ACCOUNT_ID: ${{ github.ref == 'refs/heads/main' && secrets.PROD_DAISI_ACCOUNT_ID || secrets.DEV_DAISI_ACCOUNT_ID }}
           SECURE_ENDPOINT_URL: ${{ github.ref == 'refs/heads/main' && secrets.PROD_SECURE_ENDPOINT_URL || secrets.DEV_SECURE_ENDPOINT_URL }}
           SECURE_AUTH_KEY: ${{ github.ref == 'refs/heads/main' && secrets.PROD_SECURE_AUTH_KEY || secrets.DEV_SECURE_AUTH_KEY }}

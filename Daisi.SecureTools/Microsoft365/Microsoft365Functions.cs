@@ -92,6 +92,11 @@ public class Microsoft365Functions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "m365/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("m365-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "m365/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("m365-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "m365/execute")] HttpRequestData req)

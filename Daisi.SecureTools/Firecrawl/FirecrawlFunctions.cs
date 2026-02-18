@@ -53,6 +53,11 @@ public class FirecrawlFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "firecrawl/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("firecrawl-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "firecrawl/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("firecrawl-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "firecrawl/execute")] HttpRequestData req)

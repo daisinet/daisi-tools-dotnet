@@ -75,6 +75,11 @@ public class LinkedInFunctions : SecureToolFunctionBase
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/linkedin/configure")] HttpRequestData req)
         => HandleConfigureAsync(req);
 
+    [Function("social-linkedin-configure-status")]
+    public Task<HttpResponseData> ConfigureStatus(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/linkedin/configure/status")] HttpRequestData req)
+        => HandleConfigureStatusAsync(req);
+
     [Function("social-linkedin-execute")]
     public Task<HttpResponseData> Execute(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "social/linkedin/execute")] HttpRequestData req)

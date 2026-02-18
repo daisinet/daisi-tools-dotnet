@@ -125,3 +125,23 @@ public class AuthStatusResponse
     public bool IsAuthenticated { get; set; }
     public string? Error { get; set; }
 }
+
+/// <summary>
+/// Request body for the /configure/status endpoint.
+/// </summary>
+public class ConfigureStatusRequest
+{
+    public string InstallId { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Response body for the /configure/status endpoint.
+/// Returns which setup keys have been configured, without revealing values.
+/// </summary>
+public class ConfigureStatusResponse
+{
+    public bool Success { get; set; }
+    public bool IsConfigured { get; set; }
+    public List<string> ConfiguredKeys { get; set; } = [];
+    public string? Error { get; set; }
+}

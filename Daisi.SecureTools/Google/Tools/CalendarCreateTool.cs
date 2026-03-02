@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Google.Apis.Calendar.v3.Data;
-using SecureToolProvider.Common.Models;
+using Daisi.SecureTools.Provider.Common.Models;
 
 namespace Daisi.SecureTools.Google.Tools;
 

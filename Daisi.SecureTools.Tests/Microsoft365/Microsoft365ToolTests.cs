@@ -1,7 +1,7 @@
 using Microsoft.Graph;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
-using SecureToolProvider.Common.Models;
+using Daisi.SecureTools.Provider.Common.Models;
 using Daisi.SecureTools.Microsoft365.Tools;
 using GraphClientFactory = Daisi.SecureTools.Microsoft365.GraphClientFactory;
 

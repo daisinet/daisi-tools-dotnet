@@ -2,7 +2,7 @@ using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SecureToolProvider.Common;
+using Daisi.SecureTools.Provider.Common;
 using Daisi.SecureTools.Google;
 using Daisi.SecureTools.Microsoft365;
 using Daisi.SecureTools.Firecrawl;

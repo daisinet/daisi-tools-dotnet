@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0-preview.1.25080.5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SecureToolProvider.Common\SecureToolProvider.Common.csproj" />
+    <ProjectReference Include="..\Daisi.SecureTools.Provider.Common\Daisi.SecureTools.Provider.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

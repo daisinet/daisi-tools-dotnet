@@ -11,6 +11,8 @@ namespace Daisi.Tools.Tests.Helpers
 
         public IServiceProvider Services { get; }
 
+        public string? SessionId { get; set; }
+
         public MockToolContext(
             Func<SendInferenceRequest, Task<SendInferenceResponse>>? inferCallback = null,
             IServiceProvider? services = null)

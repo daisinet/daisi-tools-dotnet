@@ -95,12 +95,7 @@ namespace Daisi.Tools.Tests.Helpers
                     Model = new ModelSettings
                     {
                         ModelFolderPath = modelFolderPath,
-                        Backend = new BackendSettings
-                        {
-                            ContextSize = 4096,
-                            GpuLayerCount = -1,
-                            BatchSize = 512
-                        }
+                        Runtime = BackendRuntimes.Auto,
                     }
                 };
             }

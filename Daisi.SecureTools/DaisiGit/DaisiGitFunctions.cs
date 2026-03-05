@@ -30,6 +30,8 @@ public class DaisiGitFunctions : SecureToolFunctionBase
         ["daisi-daisigit-add-comment"] = c => new AddCommentTool(c),
         ["daisi-daisigit-list-reviews"] = c => new ListReviewsTool(c),
         ["daisi-daisigit-submit-review"] = c => new SubmitReviewTool(c),
+        ["daisi-daisigit-fork-repo"] = c => new ForkRepositoryTool(c),
+        ["daisi-daisigit-star-repo"] = c => new StarRepositoryTool(c),
     };
 
     public DaisiGitFunctions(

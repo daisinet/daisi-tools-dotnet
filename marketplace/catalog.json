@@ -218,6 +218,19 @@
           "serviceLabel": "X Direct Messages"
         }
       ]
+    },
+    "daisigit": {
+      "routePrefix": "daisigit",
+      "setupParameters": [
+        {
+          "name": "serverUrl",
+          "description": "The URL of the DaisiGit server (e.g., https://git.daisinet.app).",
+          "type": "apikey",
+          "isRequired": true,
+          "authUrlSuffix": null,
+          "serviceLabel": "Daisi Git"
+        }
+      ]
     }
   },
   "tools": [
@@ -808,6 +821,209 @@
         { "name": "mediaUrl", "description": "URL of media file to attach", "isRequired": false },
         { "name": "mediaBase64", "description": "Base64-encoded media data to attach", "isRequired": false }
       ]
+    },
+    {
+      "toolId": "daisi-daisigit-list-repos",
+      "name": "List Repositories",
+      "description": "List git repositories accessible to the current user. Returns repository names, descriptions, visibility, and default branches.",
+      "shortDescription": "List git repositories",
+      "tags": ["git", "daisigit", "repos", "code"],
+      "provider": "daisigit",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to list git repositories. Optionally filter by owner name.",
+      "parameters": [
+        { "name": "owner", "description": "Filter repositories by owner name", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-browse-files",
+      "name": "Browse Repository Files",
+      "description": "Browse files and directories in a git repository at a given branch and path. Returns directory listings with file names and types.",
+      "shortDescription": "Browse files in a repository",
+      "tags": ["git", "daisigit", "files", "browse", "code"],
+      "provider": "daisigit",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to browse the file tree of a git repository. Specify owner, repo, branch, and path. Returns directory listings at the given path.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "branch", "description": "Branch name (default: main)", "isRequired": false },
+        { "name": "path", "description": "Path within the repository (default: root)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-read-file",
+      "name": "Read Repository File",
+      "description": "Read the content of a single file in a git repository. Returns the file text content, size, and whether it is binary.",
+      "shortDescription": "Read a file from a repository",
+      "tags": ["git", "daisigit", "files", "read", "code"],
+      "provider": "daisigit",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to read the content of a specific file in a git repository. Requires owner, repo, and path. Optionally specify a branch.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "path", "description": "File path within the repository", "isRequired": true },
+        { "name": "branch", "description": "Branch name (default: main)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-list-commits",
+      "name": "List Commits",
+      "description": "List commits on a branch in a git repository. Returns commit SHAs, authors, dates, and messages.",
+      "shortDescription": "List commits on a branch",
+      "tags": ["git", "daisigit", "commits", "history"],
+      "provider": "daisigit",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to view commit history on a branch. Specify owner, repo, and optionally branch and maxResults.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "branch", "description": "Branch name (default: main)", "isRequired": false },
+        { "name": "maxResults", "description": "Maximum number of commits to return (default: 20)", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-list-issues",
+      "name": "List Issues",
+      "description": "List issues in a git repository. Optionally filter by status (open/closed). Returns issue numbers, titles, authors, and status.",
+      "shortDescription": "List repository issues",
+      "tags": ["git", "daisigit", "issues", "tracking"],
+      "provider": "daisigit",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to list issues in a repository. Optionally filter by status (open or closed).",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "status", "description": "Filter by status: 'open' or 'closed'", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-create-issue",
+      "name": "Create Issue",
+      "description": "Create a new issue in a git repository. Specify a title and optional description.",
+      "shortDescription": "Create a repository issue",
+      "tags": ["git", "daisigit", "issues", "create"],
+      "provider": "daisigit",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to create a new issue in a repository. Always confirm the title and description with the user before creating.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "title", "description": "Issue title", "isRequired": true },
+        { "name": "description", "description": "Issue description/body", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-list-pulls",
+      "name": "List Pull Requests",
+      "description": "List pull requests in a git repository. Optionally filter by status (open/closed/merged). Returns PR numbers, titles, branches, and status.",
+      "shortDescription": "List pull requests",
+      "tags": ["git", "daisigit", "pulls", "pr"],
+      "provider": "daisigit",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to list pull requests in a repository. Optionally filter by status (open, closed, or merged).",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "status", "description": "Filter by status: 'open', 'closed', or 'merged'", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-create-pull",
+      "name": "Create Pull Request",
+      "description": "Create a new pull request in a git repository. Specify source and target branches, title, and optional description.",
+      "shortDescription": "Create a pull request",
+      "tags": ["git", "daisigit", "pulls", "pr", "create"],
+      "provider": "daisigit",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to create a pull request. Requires source branch, target branch, and title. Always confirm details with the user before creating.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "title", "description": "Pull request title", "isRequired": true },
+        { "name": "sourceBranch", "description": "Source branch name", "isRequired": true },
+        { "name": "targetBranch", "description": "Target branch name (default: main)", "isRequired": false },
+        { "name": "description", "description": "Pull request description/body", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-add-comment",
+      "name": "Add Comment",
+      "description": "Add a comment to an issue or pull request in a git repository.",
+      "shortDescription": "Comment on issue or PR",
+      "tags": ["git", "daisigit", "comment", "issues", "pulls"],
+      "provider": "daisigit",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to add a comment to an issue or pull request. Specify the type ('issues' or 'pulls') and the number.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "type", "description": "Type of item: 'issues' or 'pulls' (default: issues)", "isRequired": false },
+        { "name": "number", "description": "Issue or PR number", "isRequired": true },
+        { "name": "body", "description": "Comment text", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-list-reviews",
+      "name": "List Reviews",
+      "description": "List code reviews on a pull request. Returns review states (approved, changes requested, commented, dismissed), authors, and review bodies.",
+      "shortDescription": "List PR reviews",
+      "tags": ["git", "daisigit", "reviews", "pr", "code-review"],
+      "provider": "daisigit",
+      "toolGroup": "InformationTools",
+      "useInstructions": "Use this tool to list all code reviews on a pull request. Returns review state, author, and body for each review.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "prNumber", "description": "Pull request number", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-submit-review",
+      "name": "Submit Review",
+      "description": "Submit a code review on a pull request. Choose to approve, request changes, or leave a general comment.",
+      "shortDescription": "Review a pull request",
+      "tags": ["git", "daisigit", "reviews", "pr", "code-review", "approve"],
+      "provider": "daisigit",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to submit a code review on a pull request. Set the state to 'approve', 'request_changes', or 'comment'. Always confirm the review state and body with the user before submitting.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "prNumber", "description": "Pull request number", "isRequired": true },
+        { "name": "state", "description": "Review state: 'approve', 'request_changes', or 'comment'", "isRequired": true },
+        { "name": "body", "description": "Review comment body", "isRequired": false }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-fork-repo",
+      "name": "Fork Repository",
+      "description": "Fork a git repository to your own account. Creates a copy of the repository with all branches, commits, and files. If you already forked it, returns the existing fork.",
+      "shortDescription": "Fork a repository",
+      "tags": ["git", "daisigit", "fork", "repos"],
+      "provider": "daisigit",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to fork a repository. Confirm with the user before forking. Requires owner and repo parameters.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true }
+      ]
+    },
+    {
+      "toolId": "daisi-daisigit-star-repo",
+      "name": "Star Repository",
+      "description": "Star or unstar a git repository. Starring bookmarks a repository for quick access. Use the action parameter to star (default) or unstar.",
+      "shortDescription": "Star or unstar a repository",
+      "tags": ["git", "daisigit", "star", "bookmark", "repos"],
+      "provider": "daisigit",
+      "toolGroup": "ActionTools",
+      "useInstructions": "Use this tool to star or unstar a repository. Set action to 'star' (default) or 'unstar'.",
+      "parameters": [
+        { "name": "owner", "description": "Repository owner name", "isRequired": true },
+        { "name": "repo", "description": "Repository slug/name", "isRequired": true },
+        { "name": "action", "description": "Action to perform: 'star' (default) or 'unstar'", "isRequired": false }
+      ]
     }
   ],
   "plugins": [
@@ -863,6 +1079,29 @@
         "daisi-firecrawl-search",
         "daisi-firecrawl-extract",
         "daisi-firecrawl-map"
+      ]
+    },
+    {
+      "pluginId": "daisigit",
+      "name": "Daisi Git",
+      "description": "Git repository management tools for Daisi Git. Browse code, read files, view commits, manage issues and pull requests, submit code reviews, add comments, fork and star repositories — all from within a Daisinet bot conversation.",
+      "shortDescription": "Git repos, issues, pull requests, code reviews, forks, and stars",
+      "tags": ["git", "daisigit", "code", "repos", "issues", "pulls", "reviews", "forks", "stars"],
+      "provider": "daisigit",
+      "toolIds": [
+        "daisi-daisigit-list-repos",
+        "daisi-daisigit-browse-files",
+        "daisi-daisigit-read-file",
+        "daisi-daisigit-list-commits",
+        "daisi-daisigit-list-issues",
+        "daisi-daisigit-create-issue",
+        "daisi-daisigit-list-pulls",
+        "daisi-daisigit-create-pull",
+        "daisi-daisigit-add-comment",
+        "daisi-daisigit-list-reviews",
+        "daisi-daisigit-submit-review",
+        "daisi-daisigit-fork-repo",
+        "daisi-daisigit-star-repo"
       ]
     }
   ]

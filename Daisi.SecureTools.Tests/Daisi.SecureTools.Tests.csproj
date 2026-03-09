@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Daisi.SecureTools\Daisi.SecureTools.csproj" />
-    <ProjectReference Include="..\SecureToolProvider.Common\SecureToolProvider.Common.csproj" />
+    <ProjectReference Include="..\Daisi.SecureTools.Provider.Common\Daisi.SecureTools.Provider.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

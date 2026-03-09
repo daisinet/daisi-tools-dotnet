@@ -162,7 +162,7 @@ Connects Daisi AI agents to messaging and communications platforms for sending S
 
 **Setup:** OAuth 2.0 — requires `SlackClientId` and `SlackClientSecret`. Scopes: `chat:write chat:write.public files:write`.
 
-## Shared Library: SecureToolProvider.Common
+## Shared Library: Daisi.SecureTools.Provider.Common
 
 Production-grade shared library used by all secure tool integrations. Provides:
 
@@ -185,9 +185,9 @@ Response: { "valid": true, "installId": "...", "bundleInstallId": "..." }
 
 The `OrcValidationUrl` app setting must be configured with the ORC's base URL (e.g. `https://orc.daisinet.com`). The provider uses the returned `installId` to look up setup data and credentials, ensuring that only active sessions with valid tool installations can trigger execution.
 
-## SecureToolProvider (Reference Implementation)
+## Daisi.SecureTools.Provider (Reference Implementation)
 
-The `SecureToolProvider/` directory contains a reference Azure Functions implementation of the Daisinet Secure Tool Provider API. This demonstrates how marketplace providers can build tools that execute on their own servers while keeping credentials private.
+The `Daisi.SecureTools.Provider/` directory contains a reference Azure Functions implementation of the Daisinet Secure Tool Provider API. This demonstrates how marketplace providers can build tools that execute on their own servers while keeping credentials private.
 
 **What it shows:**
 - `SecureToolFunctions.cs` — Four HTTP endpoints implementing the provider contract:
@@ -212,7 +212,7 @@ When tools are bundled in a Plugin, the ORC sends a shared `bundleInstallId` dur
 - `/execute` now receives `sessionId` (instead of `installId`) in the request body (`ExecuteRequest` model). Every execution is validated through the ORC: the provider calls `POST {OrcValidationUrl}/api/secure-tools/validate` with `{ sessionId, toolId }` and the `X-Daisi-Auth` header. The ORC returns `{ valid, installId, bundleInstallId }` — the provider uses the returned `installId` to look up setup data and credentials. This ensures the consumer actually has an active session with the tool installed, without exposing `installId` to the host or consumer.
 
 **To use as a starting point:**
-1. Clone the `SecureToolProvider` directory
+1. Clone the `Daisi.SecureTools.Provider` directory
 2. Replace the echo logic in `Execute` with your actual tool implementation
 3. Replace `SetupStore` with a secure storage backend (Azure Key Vault recommended)
 4. Set the `ExpectedAuthKey` constant to match what you configure in the marketplace item
@@ -225,11 +225,12 @@ See the [Creating Secure Tools](https://daisi.ai/learn/marketplace/creating-secu
 
 ```
 daisi-tools-dotnet/
-├── Daisi.Tools.csproj                       # Local tools library
+├── Daisi.Tools/                             # Local tools library
 ├── Daisi.Tools.Tests/                       # Local tool tests
-├── SecureToolProvider/                      # Reference implementation (echo tool)
-├── SecureToolProvider.Common/               # Shared library for secure tools
-├── SecureToolProvider.Common.Tests/         # Shared library tests
+├── Daisi.SecureTools.Provider/              # Reference implementation (echo tool)
+├── Daisi.SecureTools.Provider.Common/       # Shared library for secure tools
+├── Daisi.SecureTools.Provider.Common.Tests/ # Shared library tests
+├── Daisi.SecureTools.Provider.Tests/        # Reference implementation tests
 ├── Daisi.SecureTools/                       # Consolidated secure tools Function App
 │   ├── Google/                              #   Google Workspace provider
 │   │   ├── GoogleFunctions.cs               #     Routes: /api/google/*
@@ -343,7 +344,7 @@ The sync script uses `upsert_item()` and preserves existing metrics (download co
 dotnet test Daisi.SecureTools.Tests
 
 # Shared library tests (22 tests)
-dotnet test SecureToolProvider.Common.Tests
+dotnet test Daisi.SecureTools.Provider.Common.Tests
 ```
 
 ## Deployment

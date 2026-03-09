@@ -2,10 +2,11 @@ using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SecureToolProvider.Common;
+using Daisi.SecureTools.Provider.Common;
 using Daisi.SecureTools.Google;
 using Daisi.SecureTools.Microsoft365;
 using Daisi.SecureTools.Firecrawl;
+using Daisi.SecureTools.DaisiGit;
 using Daisi.SecureTools.Social;
 
 var host = new HostBuilder()
@@ -21,6 +22,7 @@ var host = new HostBuilder()
         services.AddSingleton<GraphClientFactory>();
         services.AddSingleton<FirecrawlClient>();
         services.AddSingleton<SocialHttpClient>();
+        services.AddSingleton<DaisiGitClient>();
         services.AddHttpClient();
     })
     .Build();

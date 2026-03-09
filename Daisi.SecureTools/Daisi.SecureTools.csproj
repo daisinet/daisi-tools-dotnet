@@ -13,7 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.3" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
     <!-- Google -->
     <PackageReference Include="Google.Apis.Gmail.v1" Version="1.69.0.3742" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3674" />
@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0-preview.1.25080.5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SecureToolProvider.Common\SecureToolProvider.Common.csproj" />
+    <ProjectReference Include="..\Daisi.SecureTools.Provider.Common\Daisi.SecureTools.Provider.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

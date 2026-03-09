@@ -2,8 +2,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SecureToolProvider.Common;
-using SecureToolProvider.Common.Models;
+using Daisi.SecureTools.Provider.Common;
+using Daisi.SecureTools.Provider.Common.Models;
 using Daisi.SecureTools.Social;
 using Daisi.SecureTools.Comms.Slack.Tools;
 

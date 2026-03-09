@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Daisi.Tools</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Daisi.Tools.Tests" />
+  </ItemGroup>
+
+<ItemGroup>
+    <Folder Include="Coding\" />
+    <Folder Include="Communications\" />
+    <Folder Include="Data\" />
+    <Folder Include="Files\" />
+    <Folder Include="Information\" />
+    <Folder Include="Skills\" />
+    <Folder Include="Web\Crawl\" />
+    <Folder Include="Social\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathEvaluator" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0-preview.1.25080.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\daisi-sdk-dotnet\Daisi.SDK\Daisi.SDK.csproj" />
+  </ItemGroup>
+
+</Project>

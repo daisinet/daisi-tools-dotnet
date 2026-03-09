@@ -2,7 +2,7 @@ using System.Text.Json;
 using Microsoft.Graph;
 using Microsoft.Graph.Me.SendMail;
 using Microsoft.Graph.Models;
-using SecureToolProvider.Common.Models;
+using Daisi.SecureTools.Provider.Common.Models;
 
 namespace Daisi.SecureTools.Microsoft365.Tools;
 

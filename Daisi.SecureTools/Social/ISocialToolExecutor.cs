@@ -1,4 +1,4 @@
-using SecureToolProvider.Common.Models;
+using Daisi.SecureTools.Provider.Common.Models;
 
 namespace Daisi.SecureTools.Social;
 
